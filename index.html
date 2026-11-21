@@ -248,7 +248,7 @@ a{color:inherit;text-decoration:none}
     <div class="ntab" data-page="jobs">Job pipeline</div>
     <div class="ntab" data-page="coding">Practical coding</div>
   </div>
-  <div class="sync-status"><button class="btn-ghost" style="padding:4px 7px;font-size:11px" onclick="exportBackup()" title="Export backup">Export</button><label class="btn-ghost" style="padding:4px 7px;font-size:11px;cursor:pointer" title="Import backup">Import<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=''"></label>
+  <div class="sync-status"><button class="auth-btn" id="auth-btn" onclick="startGitHubLogin()">Sign in</button><button class="btn-ghost" style="padding:4px 7px;font-size:11px" onclick="exportBackup()" title="Export backup">Export</button><label class="btn-ghost" style="padding:4px 7px;font-size:11px;cursor:pointer" title="Import backup">Import<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=''"></label>
     <div class="sync-dot" id="sync-dot"></div>
     <span id="sync-label">loading</span>
   </div>
@@ -863,12 +863,16 @@ const AMINA_MILESTONES = [
 ];
 
 // ══════════════════════════════════════════════
-// CLOUD SYNC via Anthropic Storage API
+// LOCAL + GITHUB CLOUD SYNC
 // ══════════════════════════════════════════════
 const STORAGE_KEY = "uk_prep_tracker_v1";
+const API_BASE = "https://learning-tracker-api-five.vercel.app";
+const SESSION_KEY = "uk_prep_github_session";
 let state = { roadmap:{}, lc:{}, sd:{}, amina:{}, companies:{}, jobs:[], coding:{} };
 let syncTimer = null;
 let dirty = false;
+let progressSha = null;
+let sessionToken = sessionStorage.getItem(SESSION_KEY) || "";
 
 function setSyncStatus(status, label){
   const dot = document.getElementById("sync-dot");
@@ -876,18 +880,104 @@ function setSyncStatus(status, label){
   dot.className = "sync-dot " + status;
   lbl.textContent = label;
 }
-
+function setAuthButton(label, action){
+  const button = document.getElementById("auth-btn");
+  if (!button) return;
+  button.textContent = label;
+  button.onclick = action;
+}
+async function apiRequest(path, options = {}){
+  const headers = { ...(options.headers || {}) };
+  if (sessionToken) headers.Authorization = "Bearer " + sessionToken;
+  const response = await fetch(API_BASE + path, { ...options, headers });
+  const refreshed = response.headers.get("X-Session-Token");
+  if (refreshed) { sessionToken = refreshed; sessionStorage.setItem(SESSION_KEY, refreshed); }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "API request failed (" + response.status + ")");
+  return data;
+}
+function startGitHubLogin(){
+  window.location.href = API_BASE + "/api/auth/login";
+}
+function logoutGitHub(){
+  sessionToken = "";
+  sessionStorage.removeItem(SESSION_KEY);
+  progressSha = null;
+  setAuthButton("Sign in", startGitHubLogin);
+  setSyncStatus("synced", "saved on this device");
+}
+function mergeProgress(local, remote){
+  const merged = { roadmap:{}, lc:{}, sd:{}, amina:{}, companies:{}, jobs:[], coding:{}, ...(remote || {}) };
+  ["roadmap","lc","sd","amina","companies","coding"].forEach(key => {
+    merged[key] = { ...(remote?.[key] || {}), ...(local?.[key] || {}) };
+  });
+  merged.jobs = (local?.jobs?.length ? local.jobs : (remote?.jobs || []));
+  return merged;
+}
 async function loadFromCloud(){
-  setSyncStatus("syncing","loading…");
-  try { const local=localStorage.getItem(STORAGE_KEY); if(local) state={roadmap:{},lc:{},sd:{},amina:{},companies:{},jobs:[],coding:{},...JSON.parse(local)}; setSyncStatus("synced","saved on this device"); }
-  catch(e){ setSyncStatus("error","local save unavailable"); }
+  try {
+    const local = localStorage.getItem(STORAGE_KEY);
+    if (local) state = { ...state, ...JSON.parse(local) };
+    setSyncStatus("synced", "saved on this device");
+  } catch(e) { setSyncStatus("error", "local save unavailable"); }
+  const hash = window.location.hash;
+  const match = hash.match(/(?:^#|&)github_session=([^&]+)/);
+  if (match) {
+    sessionToken = decodeURIComponent(match[1]);
+    sessionStorage.setItem(SESSION_KEY, sessionToken);
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
+  if (!sessionToken) return;
+  try {
+    const me = await apiRequest("/api/auth/me");
+    setAuthButton("Sign out (" + me.login + ")", logoutGitHub);
+    setSyncStatus("syncing", "loading GitHub progress…");
+    const cloud = await apiRequest("/api/progress");
+    progressSha = cloud.sha;
+    const before = JSON.stringify(cloud.progress);
+    state = mergeProgress(state, cloud.progress);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (JSON.stringify(state) !== before) {
+      dirty = true;
+      await saveToCloud();
+    } else {
+      setSyncStatus("synced", "GitHub synced");
+    }
+  } catch(e) {
+    if (/sign in|session expired|not allowed/i.test(e.message)) logoutGitHub();
+    setSyncStatus("error", "Sync issue: " + e.message);
+  }
 }
-
 async function saveToCloud(){
-  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); setSyncStatus("synced","saved on this device"); dirty=false; }
-  catch(e){ setSyncStatus("error","save failed — export backup"); }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) {
+    setSyncStatus("error", "Local save failed — export backup");
+    return;
+  }
+  if (!sessionToken) {
+    setSyncStatus("synced", "saved on this device");
+    dirty = false;
+    return;
+  }
+  if (!progressSha) {
+    setSyncStatus("error", "Sign in again to load cloud progress");
+    return;
+  }
+  try {
+    setSyncStatus("syncing", "saving to GitHub…");
+    const result = await apiRequest("/api/progress", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ progress: state, sha: progressSha })
+    });
+    progressSha = result.sha;
+    dirty = false;
+    setSyncStatus("synced", "GitHub synced");
+  } catch(e) {
+    setSyncStatus("error", "GitHub save failed — " + e.message);
+  }
 }
-
 function scheduleSave(){
   dirty = true;
   clearTimeout(syncTimer);
