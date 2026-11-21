@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK Prep Tracker</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --surface2:#f9f9f7;
+  --border:#e0dfd8;
+  --border2:#d0cfc8;
+  --text:#1a1a1a;
+  --text2:#555;
+  --text3:#999;
+  --blue-bg:#E6F1FB;--blue-text:#0C447C;--blue-bar:#378ADD;
+  --purple-bg:#EEEDFE;--purple-text:#3C3489;--purple-bar:#7F77DD;
+  --amber-bg:#FAEEDA;--amber-text:#633806;--amber-bar:#EF9F27;
+  --green-bg:#EAF3DE;--green-text:#27500A;--green-bar:#639922;
+  --teal:#1D9E75;
+  --easy-bg:#EAF3DE;--easy-text:#27500A;
+  --med-bg:#FAEEDA;--med-text:#633806;
+  --hard-bg:#FCEBEB;--hard-text:#791F1F;
+  --radius:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#141414;--surface:#1e1e1e;--surface2:#191919;
+    --border:#2a2a2a;--border2:#333;
+    --text:#e8e8e8;--text2:#999;--text3:#555;
+    --blue-bg:#0c2a4a;--blue-text:#85B7EB;
+    --purple-bg:#1e1a3a;--purple-text:#AFA9EC;
+    --amber-bg:#2a1e0a;--amber-text:#FAC775;
+    --green-bg:#0f2010;--green-text:#C0DD97;
+    --easy-bg:#0f2010;--easy-text:#C0DD97;
+    --med-bg:#2a1e0a;--med-text:#FAC775;
+    --hard-bg:#2a0f0f;--hard-text:#F7C1C1;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0}
+a{color:inherit;text-decoration:none}
+
+/* NAV */
+.nav{background:var(--surface);border-bottom:0.5px solid var(--border);padding:0 1.25rem;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:0;height:48px}
+.nav-logo{font-size:14px;font-weight:500;margin-right:1.5rem;white-space:nowrap;color:var(--text)}
+.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.ntab{font-size:13px;padding:0 14px;height:48px;display:flex;align-items:center;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s}
+.ntab:hover{color:var(--text)}
+.ntab.active{color:var(--text);border-bottom-color:var(--text)}
+.sync-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);margin-left:auto;white-space:nowrap;padding-left:12px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.sync-dot.synced{background:var(--teal)}
+.sync-dot.syncing{background:var(--amber-bar);animation:pulse 1s infinite}
+.sync-dot.error{background:#E24B4A}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* PAGE */
+.page{display:none;padding:1.5rem 1.25rem;max-width:720px;margin:0 auto}
+.page.active{display:block}
+
+/* STATS GRID */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:1.5rem}
+.stat{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;text-align:center}
+.stat-num{font-size:24px;font-weight:500}
+.stat-label{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* PHASE CARD */
+.phase-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.875rem}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:.75rem;flex-wrap:wrap}
+.phase-badge{font-size:12px;font-weight:500;padding:3px 10px;border-radius:6px;white-space:nowrap}
+.phase-title{font-size:15px;font-weight:500;flex:1}
+.phase-date{font-size:12px;color:var(--text3)}
+.pbar-bg{background:var(--surface2);border-radius:4px;height:5px;margin-bottom:.75rem;overflow:hidden;border:0.5px solid var(--border)}
+.pbar-fill{height:5px;border-radius:4px;transition:width .4s}
+.task-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border)}
+.task-row:last-child{border-bottom:none}
+.task-row input[type=checkbox]{margin-top:3px;cursor:pointer;accent-color:var(--teal);width:15px;height:15px;flex-shrink:0}
+.task-label{font-size:14px;line-height:1.5;color:var(--text)}
+.task-label.done{color:var(--text3);text-decoration:line-through}
+
+/* LC TRACKER */
+.lc-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.chip-group{display:flex;gap:5px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:500;padding:4px 13px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text2);transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:var(--border2);color:var(--text)}
+.chip.active{background:var(--text);color:var(--surface);border-color:var(--text)}
+.chip.active.easy{background:var(--easy-bg);color:var(--easy-text);border-color:var(--easy-text)}
+.chip.active.medium{background:var(--med-bg);color:var(--med-text);border-color:var(--med-text)}
+.chip.active.hard{background:var(--hard-bg);color:var(--hard-text);border-color:var(--hard-text)}
+.lc-list{display:flex;flex-direction:column;gap:3px}
+.lc-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);transition:border-color .15s}
+.lc-row:hover{border-color:var(--border2)}
+.lc-row.solved{opacity:.55}
+.lc-check{width:15px;height:15px;cursor:pointer;accent-color:var(--teal);flex-shrink:0}
+.lc-num{font-size:12px;color:var(--text3);min-width:34px;font-family:monospace}
+.lc-name{flex:1;font-size:13px;color:var(--text)}
+.lc-name:hover{color:var(--teal);text-decoration:underline}
+.lc-name.done{text-decoration:line-through;color:var(--text3)}
+.diff-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.e-b{background:var(--easy-bg);color:var(--easy-text)}
+.m-b{background:var(--med-bg);color:var(--med-text)}
+.h-b{background:var(--hard-bg);color:var(--hard-text)}
+.lc-search{font-size:13px;padding:6px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;width:100%;max-width:220px}
+.lc-search:focus{border-color:var(--teal)}
+.lc-search::placeholder{color:var(--text3)}
+.empty{text-align:center;padding:2.5rem;color:var(--text3);font-size:14px}
+.section-label{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;padding:10px 0 6px;margin-top:4px}
+
+/* SD TRACKER */
+.sd-block{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.875rem}
+.sd-block h3{font-size:14px;font-weight:500;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.sd-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px}
+.sd-task{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+.sd-task:last-child{border-bottom:none}
+.sd-task input[type=checkbox]{margin-top:2px;cursor:pointer;accent-color:var(--teal);width:14px;height:14px;flex-shrink:0}
+.sd-label{color:var(--text);line-height:1.5}
+.sd-label.done{color:var(--text3);text-decoration:line-through}
+.sd-problem{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius);padding:.6rem 1rem;margin-bottom:5px;display:flex;align-items:flex-start;gap:10px}
+.sd-problem input[type=checkbox]{margin-top:2px;cursor:pointer;accent-color:var(--teal);width:14px;height:14px;flex-shrink:0}
+.sd-prob-content{flex:1}
+.sd-prob-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.sd-prob-title.done{text-decoration:line-through;color:var(--text3)}
+.sd-prob-sub{font-size:12px;color:var(--text3)}
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:4px}
+@media(max-width:540px){.prob-grid{grid-template-columns:1fr}}
+.framework-box{background:var(--surface2);border:0.5px solid var(--border);border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;padding:.875rem 1rem;margin-top:.5rem;font-size:13px;line-height:1.7;color:var(--text2)}
+.framework-box strong{color:var(--text);font-weight:500}
+
+/* PROGRESS BAR GLOBAL */
+.global-bar-wrap{margin-bottom:1.5rem}
+.global-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:5px}
+.global-bar-bg{background:var(--surface2);border-radius:4px;height:8px;overflow:hidden;border:0.5px solid var(--border)}
+.global-bar-fill{height:8px;border-radius:4px;background:var(--teal);transition:width .4s}
+
+/* RESET BTN */
+.btn-ghost{font-size:12px;padding:4px 10px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text2)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:1.25rem}
+.page-title{font-size:18px;font-weight:500;margin-bottom:3px}
+.page-sub{font-size:13px;color:var(--text3)}
+.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+
+/* AMINA TAB */
+.amina-hero{background:linear-gradient(135deg,#1a0a2e 0%,#2d1457 50%,#1a2a4a 100%);border-radius:14px;padding:1.5rem 1.25rem;margin-bottom:1rem;color:#fff;position:relative;overflow:hidden}
+.amina-hero::before{content:'أمينة';position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:56px;opacity:.12;font-family:serif;pointer-events:none}
+.amina-hero-title{font-size:22px;font-weight:600;margin-bottom:4px;letter-spacing:-.2px}
+.amina-hero-sub{font-size:13px;opacity:.75;line-height:1.5}
+.amina-hero-tag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.15);margin-top:.75rem;margin-right:6px}
+.amina-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.875rem}
+.amina-section h3{font-size:14px;font-weight:500;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.amina-section p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:.6rem}
+.amina-section p:last-child{margin-bottom:0}
+.amina-rec{background:var(--easy-bg);border:0.5px solid var(--easy-text);border-radius:10px;padding:.875rem 1rem;margin-bottom:.75rem}
+.amina-rec-title{font-size:13px;font-weight:500;color:var(--easy-text);margin-bottom:4px}
+.amina-rec-body{font-size:13px;color:var(--text2);line-height:1.6}
+.amina-warn{background:var(--amber-bg);border:0.5px solid var(--amber-text);border-radius:10px;padding:.875rem 1rem;margin-bottom:.75rem}
+.amina-warn-title{font-size:13px;font-weight:500;color:var(--amber-text);margin-bottom:4px}
+.amina-warn-body{font-size:13px;color:var(--text2);line-height:1.6}
+.amina-feature{display:flex;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+.amina-feature:last-child{border-bottom:none}
+.amina-feature-dot{width:6px;height:6px;border-radius:50%;background:#9B5DE5;flex-shrink:0;margin-top:5px}
+.amina-feature-text{color:var(--text);line-height:1.5;flex:1}
+.amina-feature-text strong{color:var(--text);font-weight:500}
+.amina-milestone{display:flex;gap:12px;padding:.75rem 0;border-bottom:0.5px solid var(--border);align-items:flex-start}
+.amina-milestone:last-child{border-bottom:none}
+.amina-milestone input[type=checkbox]{margin-top:2px;cursor:pointer;accent-color:#9B5DE5;width:15px;height:15px;flex-shrink:0}
+.amina-milestone-content{flex:1}
+.amina-milestone-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.amina-milestone-title.done{text-decoration:line-through;color:var(--text3)}
+.amina-milestone-sub{font-size:12px;color:var(--text3);line-height:1.4}
+.amina-phase-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:8px;background:#2d1457;color:#c4a3f0;white-space:nowrap}
+@media(prefers-color-scheme:dark){
+  .amina-phase-badge{background:#1a0a2e;color:#c4a3f0}
+  .amina-hero{background:linear-gradient(135deg,#0f0519 0%,#1a0d33 50%,#0d1a2e 100%)}
+}
+.tech-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:.5rem}
+.tech-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--surface2);border:0.5px solid var(--border);color:var(--text2)}
+.link-pill{font-size:12px;color:#9B5DE5;text-decoration:none;border-bottom:1px solid transparent}
+.link-pill:hover{border-bottom-color:#9B5DE5}
+.amina-stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.amina-stat{background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;text-align:center}
+.amina-stat-num{font-size:22px;font-weight:500;color:#9B5DE5}
+.amina-stat-label{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* COMPANIES TAB */
+.co-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.875rem}
+.co-section-title{font-size:14px;font-weight:500;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.co-section-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:8px}
+.co-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.co-row:last-child{border-bottom:none}
+.co-row input[type=checkbox]{margin-top:3px;cursor:pointer;accent-color:var(--teal);width:15px;height:15px;flex-shrink:0}
+.co-row-body{flex:1;min-width:0}
+.co-name{font-size:13px;font-weight:500;color:var(--text);line-height:1.4}
+.co-name a{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
+.co-name a:hover{border-bottom-color:var(--teal)}
+.co-name.done{color:var(--text3);text-decoration:line-through}
+.co-meta{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4}
+.co-badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.co-badge{font-size:10px;font-weight:500;padding:1px 7px;border-radius:8px;white-space:nowrap}
+.co-badge.pri-a{background:var(--green-bg);color:var(--green-text)}
+.co-badge.pri-b{background:var(--blue-bg);color:var(--blue-text)}
+.co-badge.sponsor-confirmed{background:var(--green-bg);color:var(--green-text)}
+.co-badge.sponsor-check{background:var(--amber-bg);color:var(--amber-text)}
+.co-badge.finance{background:var(--hard-bg);color:var(--hard-text)}
+.co-filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.co-search{font-size:13px;padding:6px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;width:100%;max-width:200px}
+.co-search:focus{border-color:var(--teal)}
+.co-search::placeholder{color:var(--text3)}
+.co-caution{background:var(--amber-bg);border:0.5px solid var(--amber-bar);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:var(--amber-text);line-height:1.5}
+
+
+/* UK pipeline + practical coding */
+.job-form{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin:1rem 0;box-shadow:var(--shadow)}
+.job-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.job-grid label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--text2)}
+.job-grid input,.job-grid select,#job-status-filter{font:inherit;padding:9px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--surface2);color:var(--text);min-width:0}
+.job-grid .wide{grid-column:1/-1}
+.btn-primary{border:0;border-radius:7px;padding:10px 15px;background:var(--text);color:var(--surface);font-weight:600;cursor:pointer}
+.job-card,.coding-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;margin:9px 0;box-shadow:var(--shadow)}
+.job-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.job-card h3,.coding-card h3{font-size:14px;margin-bottom:4px}
+.job-meta{font-size:12px;color:var(--text2);line-height:1.6;margin-top:6px;overflow-wrap:anywhere}
+.job-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.job-actions button{border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:6px;padding:6px 9px;cursor:pointer;font-size:12px}
+.status-pill{font-size:11px;border-radius:20px;padding:4px 8px;background:var(--blue-bg);color:var(--blue-text);white-space:nowrap}
+.coding-group{margin:18px 0}.coding-group h2{font-size:15px;margin-bottom:8px}
+.coding-card{display:flex;gap:10px;align-items:flex-start}.coding-card input{margin-top:3px}.coding-card p{font-size:12px;color:var(--text2);line-height:1.55;margin-top:4px}
+@media(max-width:640px){.job-grid{grid-template-columns:1fr}.job-grid .wide{grid-column:auto}.job-card-head{display:block}.nav{padding:0 .5rem}.nav-logo{margin-right:.6rem}}
+
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-logo">🇬🇧 UK Prep</span>
+  <div class="nav-tabs">
+    <div class="ntab active" data-page="roadmap">Roadmap</div>
+    <div class="ntab" data-page="leetcode">LeetCode</div>
+    <div class="ntab" data-page="sysdesign">System Design</div>
+    <div class="ntab" data-page="amina">✦ Amina</div>
+    <div class="ntab" data-page="companies">Companies</div>
+    <div class="ntab" data-page="jobs">Job pipeline</div>
+    <div class="ntab" data-page="coding">Practical coding</div>
+  </div>
+  <div class="sync-status"><button class="btn-ghost" style="padding:4px 7px;font-size:11px" onclick="exportBackup()" title="Export backup">Export</button><label class="btn-ghost" style="padding:4px 7px;font-size:11px;cursor:pointer" title="Import backup">Import<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=''"></label>
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-label">loading</span>
+  </div>
+</nav>
+
+<!-- ═══════════════ ROADMAP PAGE ═══════════════ -->
+<div class="page active" id="page-roadmap">
+  <div class="page-header">
+    <div class="page-header-row">
+      <div>
+        <div class="page-title">UK move roadmap</div>
+        <div class="page-sub">Nov 2026 onward · Apply now while preparing · Standalone mode saves on this device; export backups to move devices</div>
+      </div>
+      <button class="btn-ghost" onclick="resetSection('roadmap')">Reset</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="rm-done">0</div><div class="stat-label">Done</div></div>
+    <div class="stat"><div class="stat-num" id="rm-total">0</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="rm-pct">0%</div><div class="stat-label">Complete</div></div>
+  </div>
+  <div id="roadmap-phases"></div>
+</div>
+
+<!-- ═══════════════ LEETCODE PAGE ═══════════════ -->
+<div class="page" id="page-leetcode">
+  <div class="page-header">
+    <div class="page-header-row">
+      <div>
+        <div class="page-title">LeetCode tracker</div>
+        <div class="page-sub">FAANG + UK target companies</div>
+      </div>
+      <button class="btn-ghost" onclick="resetSection('lc')">Reset</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="lc-done">0</div><div class="stat-label">Solved</div></div>
+    <div class="stat"><div class="stat-num" id="lc-total">0</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="lc-pct">0%</div><div class="stat-label">Done</div></div>
+  </div>
+  <div class="global-bar-wrap">
+    <div class="global-bar-bg"><div class="global-bar-fill" id="lc-bar" style="width:0%"></div></div>
+  </div>
+  <div class="lc-controls">
+    <input class="lc-search" id="lc-search" placeholder="Search problems…" oninput="renderLC()">
+    <div class="chip-group" id="co-chips"></div>
+    <div class="chip-group" id="diff-chips"></div>
+  </div>
+  <div class="lc-list" id="lc-list"></div>
+</div>
+
+<!-- ═══════════════ AMINA PAGE ═══════════════ -->
+<div class="page" id="page-amina">
+  <div class="amina-hero">
+    <div class="amina-hero-title">Amina — أمينة</div>
+    <div class="amina-hero-sub">Women's Safety Companion · Your dream project before or during the UK move</div>
+    <div>
+      <span class="amina-hero-tag">🌐 Web-first PWA</span>
+      <span class="amina-hero-tag">⚛️ React + .NET</span>
+      <span class="amina-hero-tag">📱 iOS later</span>
+    </div>
+  </div>
+
+  <div class="amina-stats-grid">
+    <div class="amina-stat"><div class="amina-stat-num" id="am-done">0</div><div class="amina-stat-label">Done</div></div>
+    <div class="amina-stat"><div class="amina-stat-num" id="am-total">0</div><div class="amina-stat-label">Milestones</div></div>
+    <div class="amina-stat"><div class="amina-stat-num" id="am-pct">0%</div><div class="amina-stat-label">Built</div></div>
+  </div>
+
+  <!-- Web vs native recommendation -->
+  <div class="amina-section">
+    <h3>🌐 Web-first vs iOS-native — the call</h3>
+    <div class="amina-rec">
+      <div class="amina-rec-title">✅ Recommendation: Build Amina as a React PWA + .NET API first</div>
+      <div class="amina-rec-body">Your stack is React + .NET. Learning Swift/SwiftUI to build native iOS on top of learning DSA + system design + UK move prep is too much at once. A React PWA gives you ~85% of the iOS feature set, ships faster, and is exactly what interviewers at Bumble, Trainline, and Deliveroo want to see in your portfolio.</div>
+    </div>
+    <div class="amina-warn">
+      <div class="amina-warn-title">⚠️ What you give up (and when to revisit)</div>
+      <div class="amina-warn-body">Bluetooth mesh (Apple Multipeer Connectivity) is iOS-only — no web equivalent. Fake call with lock screen UI requires native. CallKit / IdentityLookup extension is native-only. These are v2 features — build the web version first, prove the core concept, then wrap it in React Native or Swift if you want the full PRD vision post-UK.</div>
+    </div>
+    <p><strong>The real goal here is learning.</strong> Building Amina in React + .NET teaches you component architecture, real-time WebSocket comms, REST API design, auth, PostgreSQL, location APIs, and PWA service workers. That is system design through actual implementation — exactly what you said you want.</p>
+    <p>For React learning: <a class="link-pill" href="https://fullstackopen.com" target="_blank" rel="noopener">Full Stack Open (fullstackopen.com)</a> is the best free course on the planet for this stack — React + Node/Express + testing. Work through it while building Amina alongside.</p>
+  </div>
+
+  <!-- What Amina is -->
+  <div class="amina-section">
+    <h3>📋 What Amina does (PRD v1.0)</h3>
+    <p>A women's safety companion built on a <strong>local-first architecture</strong> — works across full network, degraded signal, and fully offline. Three connectivity tiers, crowdsourced safety map, real-time guardian view.</p>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Journey Mode</strong> — woman sets destination + ETA; app tracks passively; auto-alerts guardians if she stops unexpectedly or goes silent for 60+ seconds</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>One-Tap SOS</strong> — hold 3s or shake phone 3× (discreet); sends SMS + push to all trusted contacts, triggers loud siren, broadcasts live location continuously</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Crowdsourced Safety Map</strong> — anonymised heatmap of safe/suspicious zones built from all users' journey data; cached locally for offline use</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Guardian View</strong> — up to 5 trusted contacts get a lightweight live map view; can send check-in pings; ranked by alert priority</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Fake Call Escape</strong> — schedule or instantly trigger a realistic incoming call UI to safely exit uncomfortable situations</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Safe Zones</strong> — mark home, masjid, work as safe; auto-reduce tracking frequency + auto-notify guardians on arrival</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Bluetooth Mesh (iOS v2)</strong> — offline location relay through nearby Amina users; end-to-end encrypted; inspired by AirTag's offline finding network</div></div>
+  </div>
+
+  <!-- Tech stack for web version -->
+  <div class="amina-section">
+    <h3>🛠 Web version tech stack</h3>
+    <p>This maps directly onto your existing React + .NET skills, extended with real-time and PWA concepts.</p>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Frontend</strong> — React (TypeScript) + React Router + Zustand for state; Leaflet.js for maps; PWA service worker for offline caching</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Backend</strong> — .NET 8 Web API (your stack!) + SignalR for real-time WebSocket; PostgreSQL + Entity Framework; Twilio for SMS fallback</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Auth</strong> — ASP.NET Identity + JWT; OAuth (Google sign-in) — real auth you'd use in production</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Hosting</strong> — Vercel (React) + Railway or Render (.NET API) + Supabase (PostgreSQL) — all free tiers available</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Open source</strong> — public GitHub repo; MIT licence; contributes to your portfolio and OSS presence UK employers look for</div></div>
+    <div class="tech-row">
+      <span class="tech-pill">React (TS)</span><span class="tech-pill">.NET 8</span><span class="tech-pill">SignalR</span><span class="tech-pill">PostgreSQL</span>
+      <span class="tech-pill">Leaflet.js</span><span class="tech-pill">Twilio</span><span class="tech-pill">PWA</span><span class="tech-pill">JWT</span><span class="tech-pill">Docker</span>
+    </div>
+  </div>
+
+  <!-- System design angle -->
+  <div class="amina-section">
+    <h3>🧠 System design concepts Amina teaches you</h3>
+    <p>Building it answers real system design interview questions:</p>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Real-time location at scale</strong> — WebSocket vs polling, GPS heartbeat batching, SignalR hubs — directly maps to "Design Uber"</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Local-first architecture</strong> — IndexedDB offline queue, service worker sync, conflict resolution — maps to "Design Google Drive"</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Fan-out notifications</strong> — SOS triggers multi-channel delivery (push + SMS + WebSocket) — maps to "Design a notification service"</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Crowdsourced aggregation</strong> — anonymising + aggregating location data into heatmaps at scale — maps to "Design Twitter feed" / analytics</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Auth + security</strong> — JWT, refresh tokens, end-to-end encryption for location packets — real production auth design</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><strong>Anomaly detection</strong> — stateful journey monitoring, threshold logic, alerting pipeline — event-driven architecture in practice</div></div>
+  </div>
+
+  <!-- Build roadmap with milestones -->
+  <div class="amina-section">
+    <h3>🗓 Build roadmap — milestones</h3>
+    <p>Fits around your 8:45–11:30 pm study window. Fridays are best for Amina work (portfolio / GitHub day in Phase 2).</p>
+    <div id="amina-milestones"></div>
+  </div>
+
+  <!-- Resources -->
+  <div class="amina-section">
+    <h3>📚 Resources</h3>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><a class="link-pill" href="https://fullstackopen.com" target="_blank" rel="noopener">Full Stack Open</a> — free university course: React, Node, TypeScript, testing, GraphQL. Best on the internet, free. Do parts 1–7 while building Amina.</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><a class="link-pill" href="https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction" target="_blank" rel="noopener">ASP.NET SignalR docs</a> — real-time WebSocket for .NET; this is your live location layer.</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><a class="link-pill" href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet.js</a> — open-source map library; free, no Google Maps API key needed.</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><a class="link-pill" href="https://web.dev/progressive-web-apps/" target="_blank" rel="noopener">web.dev PWA guide</a> — service workers, offline support, installable app. The offline-first architecture from your PRD.</div></div>
+    <div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><a class="link-pill" href="https://www.twilio.com/docs/sms" target="_blank" rel="noopener">Twilio SMS API</a> — SMS fallback for SOS alerts. Free trial includes enough credits to build and demo.</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════ COMPANIES PAGE ═══════════════ -->
+<div class="page" id="page-companies">
+  <div class="page-header">
+    <div class="page-header-row">
+      <div>
+        <div class="page-title">Company targets</div>
+        <div class="page-sub">UK product & technology employers · tick = researched / prioritised</div>
+      </div>
+      <button class="btn-ghost" onclick="resetSection('companies')">Reset</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="co-ticked">0</div><div class="stat-label">Researched</div></div>
+    <div class="stat"><div class="stat-num" id="co-total">0</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="co-pct">0%</div><div class="stat-label">Done</div></div>
+  </div>
+  <div class="co-caution"><strong>Sponsor status is deliberately conservative.</strong> A company brand is not the legal sponsor. Verify the exact UK employing entity and the Skilled Worker route in the <a href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">official Home Office register</a> before treating it as eligible. A licence does not mean a specific vacancy will sponsor. This list is a target shortlist, not a claim that every entity or role is verified.</div>
+  <div class="co-filter-bar">
+    <input class="co-search" id="co-search" placeholder="Search companies…" oninput="renderCompanies()">
+    <div class="chip-group" id="co-country-chips"></div>
+    <div class="chip-group" id="co-pri-chips"></div>
+  </div>
+  <div id="companies-list"></div>
+</div>
+
+<!-- ═══════════════ UK JOB PIPELINE PAGE ═══════════════ -->
+<div class="page" id="page-jobs">
+  <div class="page-header"><div class="page-header-row"><div><div class="page-title">UK job pipeline</div><div class="page-sub">Apply now · £70k+ base target · record the exact employing entity and vacancy-level sponsorship</div></div><button class="btn-ghost" onclick="clearJobs()">Clear pipeline</button></div></div>
+  <div class="co-caution">A sponsor licence is employer-level only. For every role, record whether the advert explicitly confirms sponsorship or whether you still need recruiter confirmation. Salary means annual base salary, not total compensation.</div>
+  <div class="stats"><div class="stat"><div class="stat-num" id="job-total">0</div><div class="stat-label">Tracked roles</div></div><div class="stat"><div class="stat-num" id="job-active">0</div><div class="stat-label">In progress</div></div><div class="stat"><div class="stat-num" id="job-offers">0</div><div class="stat-label">Offers</div></div></div>
+  <div class="job-form">
+    <div class="job-grid">
+      <label>Company<input id="job-company" placeholder="e.g. Expedia Group"></label>
+      <label>Role title<input id="job-title" placeholder="e.g. Software Engineer II"></label>
+      <label>UK location<input id="job-location" placeholder="London / hybrid / remote"></label>
+      <label>Legal employing entity<input id="job-entity" placeholder="Exact entity from job / UKVI register"></label>
+      <label>Base salary (£)<input id="job-salary" type="number" min="0" placeholder="70000"></label>
+      <label>Required experience<input id="job-exp" placeholder="e.g. 2+ years"></label>
+      <label>Vacancy sponsorship<select id="job-sponsor"><option value="unknown">Not stated — ask recruiter</option><option value="yes">Explicitly says sponsorship</option><option value="no">No sponsorship</option><option value="conditional">Case-by-case / conditional</option></select></label>
+      <label>Application status<select id="job-status"><option>Saved</option><option>Researching</option><option>Applied</option><option>Recruiter screen</option><option>Technical interview</option><option>Final round</option><option>Offer</option><option>Rejected</option><option>Withdrawn</option></select></label>
+      <label class="wide">Job URL<input id="job-url" type="url" placeholder="https://..."></label>
+      <label class="wide">Notes / next action<input id="job-notes" placeholder="Tech stack, closing date, recruiter follow-up, interview notes"></label>
+    </div>
+    <button class="btn-primary" onclick="addJob()">Add role to pipeline</button>
+  </div>
+  <div class="co-filter-bar"><input class="co-search" id="job-search" placeholder="Filter tracked roles…" oninput="renderJobs()"><select id="job-status-filter" onchange="renderJobs()"><option value="all">All statuses</option><option>Saved</option><option>Researching</option><option>Applied</option><option>Recruiter screen</option><option>Technical interview</option><option>Final round</option><option>Offer</option><option>Rejected</option><option>Withdrawn</option></select></div>
+  <div id="jobs-list"></div>
+  <div class="amina-section"><h3>Weekly search routine</h3><p>Use company career sites first, then LinkedIn. Search titles such as <strong>Software Engineer II</strong>, <strong>Backend Engineer</strong>, <strong>Full Stack Engineer (.NET / React)</strong>, and <strong>Software Development Engineer I/II</strong>. Save the job URL and capture the salary range and required years before applying.</p><div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><a class="link-pill" href="https://uk.linkedin.com/jobs/software-engineer-jobs" target="_blank" rel="noopener">LinkedIn UK Software Engineer jobs</a></div></div><div class="amina-feature"><div class="amina-feature-dot"></div><div class="amina-feature-text"><a class="link-pill" href="https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers" target="_blank" rel="noopener">Official Home Office sponsor register</a> — verify the exact legal entity, not just the brand</div></div></div>
+</div>
+
+<!-- ═══════════════ PRACTICAL CODING PAGE ═══════════════ -->
+<div class="page" id="page-coding">
+  <div class="page-header"><div class="page-title">Practical coding & engineering</div><div class="page-sub">C# first · build, test, explain trade-offs · interview-style exercises</div></div>
+  <div class="co-caution">For each exercise: clarify requirements → write a small design → implement without AI first → add tests → explain complexity and failure cases. Tick only when you can rebuild and explain it.</div>
+  <div class="stats"><div class="stat"><div class="stat-num" id="coding-done">0</div><div class="stat-label">Completed</div></div><div class="stat"><div class="stat-num" id="coding-total">0</div><div class="stat-label">Exercises</div></div><div class="stat"><div class="stat-num" id="coding-pct">0%</div><div class="stat-label">Mastered</div></div></div>
+  <div id="coding-list"></div>
+</div>
+
+<!-- ═══════════════ SYSTEM DESIGN PAGE ═══════════════ -->
+<div class="page" id="page-sysdesign">
+  <div class="page-header">
+    <div class="page-header-row">
+      <div>
+        <div class="page-title">System design prep</div>
+        <div class="page-sub">Foundations → Problems → Framework</div>
+      </div>
+      <button class="btn-ghost" onclick="resetSection('sd')">Reset</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="sd-done">0</div><div class="stat-label">Done</div></div>
+    <div class="stat"><div class="stat-num" id="sd-total">0</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="sd-pct">0%</div><div class="stat-label">Complete</div></div>
+  </div>
+  <div id="sd-content"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const PHASES = [
+  { id:"p1", label:"Phase 1", title:"Foundation", date:"Nov 2026 → Jan 2027", badge:"--blue-bg,--blue-text", bar:"--blue-bar",
+    tasks:["LeetCode easy — 3–4 per week (target 50 total)","DSA: arrays, strings, hashmaps, two pointers, sliding window","System design basics — load balancer, cache, CDN, indexing","Go deep on current .NET/React work at Disprz","Update LinkedIn for UK visibility","Follow UK tech recruiters on LinkedIn","Take IELTS — aim for band 7.5+"] },
+  { id:"p2", label:"Phase 2", title:"Building", date:"Nov 2026 → Apr 2027 · parallel with applications", badge:"--purple-bg,--purple-text", bar:"--purple-bar",
+    tasks:["LeetCode medium — 3 per week (target 120 total)","System design: Spotify, TripAdvisor search, delivery tracking","SQL: window functions, query optimization, indexing","Mock interviews on Pramp — once a week","Build GitHub portfolio — 2–3 solid projects","Refine CV for UK format (1 page, no photo, results-focused)","Research UK Home Office sponsor register — bookmark tech companies"] },
+  { id:"p3", label:"Phase 3", title:"Interview ready", date:"Now → 2027 · interview loop", badge:"--amber-bg,--amber-text", bar:"--amber-bar",
+    tasks:["LeetCode hard — 20–30 problems for exposure","Full mock interviews — DSA + system design + behavioral","Practice explaining Disprz refactor work in 2 minutes","Apply to suitable UK roles every week from now — do not wait for Phase 3","Prioritise verified UK sponsor entities and £70k+ base opportunities","Target: Booking.com, Tripadvisor, Deliveroo, Expedia, Spotify and comparable product firms","Keep role quality and sponsorship ahead of company-count targets"] },
+  { id:"p4", label:"Phase 4", title:"Visa & move", date:"After offer · visa & relocation", badge:"--green-bg,--green-text", bar:"--green-bar",
+    tasks:["Take IELTS (if not done)","Receive job offer","Employer files Certificate of Sponsorship (CoS)","Apply for Skilled Worker Visa online","Visa approved (~3 weeks processing)","Resign from Disprz — serve 1 month notice","Arrange housing in UK before landing","Move to UK 🎉"] }
+];
+
+const COMPANIES = {
+  "Amazon":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:2,n:"Add Two Numbers",d:"medium",s:"add-two-numbers"},
+    {id:3,n:"Longest Substring Without Repeating Characters",d:"medium",s:"longest-substring-without-repeating-characters"},
+    {id:15,n:"3Sum",d:"medium",s:"3sum"},{id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:21,n:"Merge Two Sorted Lists",d:"easy",s:"merge-two-sorted-lists"},
+    {id:23,n:"Merge K Sorted Lists",d:"hard",s:"merge-k-sorted-lists"},
+    {id:42,n:"Trapping Rain Water",d:"hard",s:"trapping-rain-water"},
+    {id:46,n:"Permutations",d:"medium",s:"permutations"},{id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams"},
+    {id:53,n:"Maximum Subarray",d:"medium",s:"maximum-subarray"},{id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:78,n:"Subsets",d:"medium",s:"subsets"},{id:102,n:"Binary Tree Level Order Traversal",d:"medium",s:"binary-tree-level-order-traversal"},
+    {id:121,n:"Best Time to Buy and Sell Stock",d:"easy",s:"best-time-to-buy-and-sell-stock"},
+    {id:127,n:"Word Ladder",d:"hard",s:"word-ladder"},{id:128,n:"Longest Consecutive Sequence",d:"medium",s:"longest-consecutive-sequence"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},{id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},{id:212,n:"Word Search II",d:"hard",s:"word-search-ii"},
+    {id:239,n:"Sliding Window Maximum",d:"hard",s:"sliding-window-maximum"},
+    {id:253,n:"Meeting Rooms II",d:"medium",s:"meeting-rooms-ii"},
+    {id:269,n:"Alien Dictionary",d:"hard",s:"alien-dictionary"},
+    {id:297,n:"Serialize and Deserialize Binary Tree",d:"hard",s:"serialize-and-deserialize-binary-tree"},
+    {id:380,n:"Insert Delete GetRandom O(1)",d:"medium",s:"insert-delete-getrandom-o1"},
+    {id:460,n:"LFU Cache",d:"hard",s:"lfu-cache"},{id:692,n:"Top K Frequent Words",d:"medium",s:"top-k-frequent-words"},
+    {id:973,n:"K Closest Points to Origin",d:"medium",s:"k-closest-points-to-origin"},
+    {id:1143,n:"Longest Common Subsequence",d:"medium",s:"longest-common-subsequence"}
+  ],
+  "Google":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:4,n:"Median of Two Sorted Arrays",d:"hard",s:"median-of-two-sorted-arrays"},
+    {id:5,n:"Longest Palindromic Substring",d:"medium",s:"longest-palindromic-substring"},
+    {id:17,n:"Letter Combinations of a Phone Number",d:"medium",s:"letter-combinations-of-a-phone-number"},
+    {id:44,n:"Wildcard Matching",d:"hard",s:"wildcard-matching"},
+    {id:68,n:"Text Justification",d:"hard",s:"text-justification"},
+    {id:76,n:"Minimum Window Substring",d:"hard",s:"minimum-window-substring"},
+    {id:84,n:"Largest Rectangle in Histogram",d:"hard",s:"largest-rectangle-in-histogram"},
+    {id:127,n:"Word Ladder",d:"hard",s:"word-ladder"},{id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},
+    {id:149,n:"Max Points on a Line",d:"hard",s:"max-points-on-a-line"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:208,n:"Implement Trie (Prefix Tree)",d:"medium",s:"implement-trie-prefix-tree"},
+    {id:212,n:"Word Search II",d:"hard",s:"word-search-ii"},
+    {id:218,n:"The Skyline Problem",d:"hard",s:"the-skyline-problem"},
+    {id:269,n:"Alien Dictionary",d:"hard",s:"alien-dictionary"},
+    {id:295,n:"Find Median from Data Stream",d:"hard",s:"find-median-from-data-stream"},
+    {id:297,n:"Serialize and Deserialize Binary Tree",d:"hard",s:"serialize-and-deserialize-binary-tree"},
+    {id:315,n:"Count of Smaller Numbers After Self",d:"hard",s:"count-of-smaller-numbers-after-self"},
+    {id:336,n:"Palindrome Pairs",d:"hard",s:"palindrome-pairs"},
+    {id:359,n:"Logger Rate Limiter",d:"easy",s:"logger-rate-limiter"},
+    {id:642,n:"Design Search Autocomplete System",d:"hard",s:"design-search-autocomplete-system"},
+    {id:843,n:"Guess the Word",d:"hard",s:"guess-the-word"},
+    {id:1197,n:"Minimum Knight Moves",d:"medium",s:"minimum-knight-moves"},
+    {id:1293,n:"Shortest Path in Grid with Obstacles",d:"hard",s:"shortest-path-in-a-grid-with-obstacles-elimination"},
+    {id:1345,n:"Jump Game IV",d:"hard",s:"jump-game-iv"},
+    {id:31,n:"Next Permutation",d:"medium",s:"next-permutation"},
+    {id:926,n:"Flip String to Monotone Increasing",d:"medium",s:"flip-string-to-monotone-increasing"},
+    {id:65,n:"Valid Number",d:"hard",s:"valid-number"},
+    {id:683,n:"K Empty Slots",d:"hard",s:"k-empty-slots"}
+  ],
+  "Meta":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:15,n:"3Sum",d:"medium",s:"3sum"},
+    {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:21,n:"Merge Two Sorted Lists",d:"easy",s:"merge-two-sorted-lists"},
+    {id:23,n:"Merge K Sorted Lists",d:"hard",s:"merge-k-sorted-lists"},
+    {id:31,n:"Next Permutation",d:"medium",s:"next-permutation"},
+    {id:33,n:"Search in Rotated Sorted Array",d:"medium",s:"search-in-rotated-sorted-array"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:76,n:"Minimum Window Substring",d:"hard",s:"minimum-window-substring"},
+    {id:88,n:"Merge Sorted Array",d:"easy",s:"merge-sorted-array"},
+    {id:125,n:"Valid Palindrome",d:"easy",s:"valid-palindrome"},
+    {id:133,n:"Clone Graph",d:"medium",s:"clone-graph"},
+    {id:199,n:"Binary Tree Right Side View",d:"medium",s:"binary-tree-right-side-view"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:227,n:"Basic Calculator II",d:"medium",s:"basic-calculator-ii"},
+    {id:236,n:"Lowest Common Ancestor of a Binary Tree",d:"medium",s:"lowest-common-ancestor-of-a-binary-tree"},
+    {id:282,n:"Expression Add Operators",d:"hard",s:"expression-add-operators"},
+    {id:314,n:"Binary Tree Vertical Order Traversal",d:"medium",s:"binary-tree-vertical-order-traversal"},
+    {id:415,n:"Add Strings",d:"easy",s:"add-strings"},
+    {id:523,n:"Continuous Subarray Sum",d:"medium",s:"continuous-subarray-sum"},
+    {id:528,n:"Random Pick with Weight",d:"medium",s:"random-pick-with-weight"},
+    {id:670,n:"Maximum Swap",d:"medium",s:"maximum-swap"},
+    {id:791,n:"Custom Sort String",d:"medium",s:"custom-sort-string"},
+    {id:986,n:"Interval List Intersections",d:"medium",s:"interval-list-intersections"},
+    {id:1650,n:"LCA of Binary Tree III",d:"medium",s:"lowest-common-ancestor-of-a-binary-tree-iii"},
+    {id:50,n:"Pow(x, n)",d:"medium",s:"powx-n"},
+    {id:71,n:"Simplify Path",d:"medium",s:"simplify-path"},
+    {id:163,n:"Missing Ranges",d:"easy",s:"missing-ranges"},
+    {id:270,n:"Closest BST Value",d:"easy",s:"closest-binary-search-tree-value"},
+    {id:311,n:"Sparse Matrix Multiplication",d:"medium",s:"sparse-matrix-multiplication"}
+  ],
+  "Microsoft":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:2,n:"Add Two Numbers",d:"medium",s:"add-two-numbers"},
+    {id:7,n:"Reverse Integer",d:"medium",s:"reverse-integer"},
+    {id:14,n:"Longest Common Prefix",d:"easy",s:"longest-common-prefix"},
+    {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:21,n:"Merge Two Sorted Lists",d:"easy",s:"merge-two-sorted-lists"},
+    {id:42,n:"Trapping Rain Water",d:"hard",s:"trapping-rain-water"},
+    {id:53,n:"Maximum Subarray",d:"medium",s:"maximum-subarray"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:98,n:"Validate Binary Search Tree",d:"medium",s:"validate-binary-search-tree"},
+    {id:102,n:"Binary Tree Level Order Traversal",d:"medium",s:"binary-tree-level-order-traversal"},
+    {id:104,n:"Maximum Depth of Binary Tree",d:"easy",s:"maximum-depth-of-binary-tree"},
+    {id:121,n:"Best Time to Buy and Sell Stock",d:"easy",s:"best-time-to-buy-and-sell-stock"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},
+    {id:173,n:"Binary Search Tree Iterator",d:"medium",s:"binary-search-tree-iterator"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:206,n:"Reverse Linked List",d:"easy",s:"reverse-linked-list"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},
+    {id:297,n:"Serialize and Deserialize Binary Tree",d:"hard",s:"serialize-and-deserialize-binary-tree"},
+    {id:380,n:"Insert Delete GetRandom O(1)",d:"medium",s:"insert-delete-getrandom-o1"},
+    {id:460,n:"LFU Cache",d:"hard",s:"lfu-cache"},
+    {id:543,n:"Diameter of Binary Tree",d:"easy",s:"diameter-of-binary-tree"},
+    {id:695,n:"Max Area of Island",d:"medium",s:"max-area-of-island"},
+    {id:735,n:"Asteroid Collision",d:"medium",s:"asteroid-collision"},
+    {id:994,n:"Rotting Oranges",d:"medium",s:"rotting-oranges"},
+    {id:116,n:"Populating Next Right Pointers",d:"medium",s:"populating-next-right-pointers-in-each-node"},
+    {id:1047,n:"Remove All Adjacent Duplicates In String",d:"easy",s:"remove-all-adjacent-duplicates-in-string"},
+    {id:1143,n:"Longest Common Subsequence",d:"medium",s:"longest-common-subsequence"},
+    {id:1423,n:"Max Points from Cards",d:"medium",s:"maximum-points-you-can-obtain-from-cards"},
+    {id:3,n:"Longest Substring Without Repeating Chars",d:"medium",s:"longest-substring-without-repeating-characters"}
+  ],
+  "Apple":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:2,n:"Add Two Numbers",d:"medium",s:"add-two-numbers"},
+    {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:21,n:"Merge Two Sorted Lists",d:"easy",s:"merge-two-sorted-lists"},
+    {id:42,n:"Trapping Rain Water",d:"hard",s:"trapping-rain-water"},
+    {id:53,n:"Maximum Subarray",d:"medium",s:"maximum-subarray"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:98,n:"Validate Binary Search Tree",d:"medium",s:"validate-binary-search-tree"},
+    {id:102,n:"Binary Tree Level Order Traversal",d:"medium",s:"binary-tree-level-order-traversal"},
+    {id:121,n:"Best Time to Buy and Sell Stock",d:"easy",s:"best-time-to-buy-and-sell-stock"},
+    {id:124,n:"Binary Tree Maximum Path Sum",d:"hard",s:"binary-tree-maximum-path-sum"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:206,n:"Reverse Linked List",d:"easy",s:"reverse-linked-list"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},
+    {id:210,n:"Course Schedule II",d:"medium",s:"course-schedule-ii"},
+    {id:236,n:"Lowest Common Ancestor",d:"medium",s:"lowest-common-ancestor-of-a-binary-tree"},
+    {id:239,n:"Sliding Window Maximum",d:"hard",s:"sliding-window-maximum"},
+    {id:295,n:"Find Median from Data Stream",d:"hard",s:"find-median-from-data-stream"},
+    {id:297,n:"Serialize and Deserialize Binary Tree",d:"hard",s:"serialize-and-deserialize-binary-tree"},
+    {id:322,n:"Coin Change",d:"medium",s:"coin-change"},
+    {id:394,n:"Decode String",d:"medium",s:"decode-string"},
+    {id:543,n:"Diameter of Binary Tree",d:"easy",s:"diameter-of-binary-tree"},
+    {id:704,n:"Binary Search",d:"easy",s:"binary-search"},
+    {id:721,n:"Accounts Merge",d:"medium",s:"accounts-merge"},
+    {id:787,n:"Cheapest Flights Within K Stops",d:"medium",s:"cheapest-flights-within-k-stops"},
+    {id:1091,n:"Shortest Path in Binary Matrix",d:"medium",s:"shortest-path-in-binary-matrix"},
+    {id:3,n:"Longest Substring Without Repeating Chars",d:"medium",s:"longest-substring-without-repeating-characters"},
+    {id:104,n:"Maximum Depth of Binary Tree",d:"easy",s:"maximum-depth-of-binary-tree"},
+    {id:1337,n:"K Weakest Rows in a Matrix",d:"easy",s:"the-k-weakest-rows-in-a-matrix"}
+  ],
+  "Netflix":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},
+    {id:5,n:"Longest Palindromic Substring",d:"medium",s:"longest-palindromic-substring"},
+    {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:42,n:"Trapping Rain Water",d:"hard",s:"trapping-rain-water"},
+    {id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams"},
+    {id:53,n:"Maximum Subarray",d:"medium",s:"maximum-subarray"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:76,n:"Minimum Window Substring",d:"hard",s:"minimum-window-substring"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},
+    {id:239,n:"Sliding Window Maximum",d:"hard",s:"sliding-window-maximum"},
+    {id:295,n:"Find Median from Data Stream",d:"hard",s:"find-median-from-data-stream"},
+    {id:297,n:"Serialize and Deserialize Binary Tree",d:"hard",s:"serialize-and-deserialize-binary-tree"},
+    {id:322,n:"Coin Change",d:"medium",s:"coin-change"},
+    {id:380,n:"Insert Delete GetRandom O(1)",d:"medium",s:"insert-delete-getrandom-o1"},
+    {id:460,n:"LFU Cache",d:"hard",s:"lfu-cache"},
+    {id:621,n:"Task Scheduler",d:"medium",s:"task-scheduler"},
+    {id:642,n:"Design Search Autocomplete System",d:"hard",s:"design-search-autocomplete-system"},
+    {id:767,n:"Reorganize String",d:"medium",s:"reorganize-string"},
+    {id:895,n:"Maximum Frequency Stack",d:"hard",s:"maximum-frequency-stack"},
+    {id:973,n:"K Closest Points to Origin",d:"medium",s:"k-closest-points-to-origin"},
+    {id:1011,n:"Capacity To Ship Packages Within D Days",d:"medium",s:"capacity-to-ship-packages-within-d-days"},
+    {id:1046,n:"Last Stone Weight",d:"easy",s:"last-stone-weight"},
+    {id:127,n:"Word Ladder",d:"hard",s:"word-ladder"}
+  ],
+  "Spotify":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},
+    {id:3,n:"Longest Substring Without Repeating Chars",d:"medium",s:"longest-substring-without-repeating-characters"},
+    {id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams"},
+    {id:53,n:"Maximum Subarray",d:"medium",s:"maximum-subarray"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:76,n:"Minimum Window Substring",d:"hard",s:"minimum-window-substring"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},
+    {id:239,n:"Sliding Window Maximum",d:"hard",s:"sliding-window-maximum"},
+    {id:295,n:"Find Median from Data Stream",d:"hard",s:"find-median-from-data-stream"},
+    {id:322,n:"Coin Change",d:"medium",s:"coin-change"},
+    {id:380,n:"Insert Delete GetRandom O(1)",d:"medium",s:"insert-delete-getrandom-o1"},
+    {id:460,n:"LFU Cache",d:"hard",s:"lfu-cache"},
+    {id:621,n:"Task Scheduler",d:"medium",s:"task-scheduler"},
+    {id:692,n:"Top K Frequent Words",d:"medium",s:"top-k-frequent-words"},
+    {id:767,n:"Reorganize String",d:"medium",s:"reorganize-string"},
+    {id:973,n:"K Closest Points to Origin",d:"medium",s:"k-closest-points-to-origin"},
+    {id:1046,n:"Last Stone Weight",d:"easy",s:"last-stone-weight"},
+    {id:1143,n:"Longest Common Subsequence",d:"medium",s:"longest-common-subsequence"},
+    {id:1584,n:"Min Cost to Connect All Points",d:"medium",s:"min-cost-to-connect-all-points"},
+    {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:1631,n:"Path With Minimum Effort",d:"medium",s:"path-with-minimum-effort"},
+    {id:5,n:"Longest Palindromic Substring",d:"medium",s:"longest-palindromic-substring"}
+  ],
+  "Booking.com":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},
+    {id:15,n:"3Sum",d:"medium",s:"3sum"},
+    {id:42,n:"Trapping Rain Water",d:"hard",s:"trapping-rain-water"},
+    {id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:76,n:"Minimum Window Substring",d:"hard",s:"minimum-window-substring"},
+    {id:127,n:"Word Ladder",d:"hard",s:"word-ladder"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},
+    {id:253,n:"Meeting Rooms II",d:"medium",s:"meeting-rooms-ii"},
+    {id:295,n:"Find Median from Data Stream",d:"hard",s:"find-median-from-data-stream"},
+    {id:322,n:"Coin Change",d:"medium",s:"coin-change"},
+    {id:380,n:"Insert Delete GetRandom O(1)",d:"medium",s:"insert-delete-getrandom-o1"},
+    {id:417,n:"Pacific Atlantic Water Flow",d:"medium",s:"pacific-atlantic-water-flow"},
+    {id:621,n:"Task Scheduler",d:"medium",s:"task-scheduler"},
+    {id:692,n:"Top K Frequent Words",d:"medium",s:"top-k-frequent-words"},
+    {id:973,n:"K Closest Points to Origin",d:"medium",s:"k-closest-points-to-origin"},
+    {id:1011,n:"Capacity To Ship Packages Within D Days",d:"medium",s:"capacity-to-ship-packages-within-d-days"},
+    {id:1235,n:"Maximum Profit in Job Scheduling",d:"hard",s:"maximum-profit-in-job-scheduling"},
+    {id:1268,n:"Search Suggestions System",d:"medium",s:"search-suggestions-system"},
+    {id:1584,n:"Min Cost to Connect All Points",d:"medium",s:"min-cost-to-connect-all-points"},
+    {id:3,n:"Longest Substring Without Repeating Chars",d:"medium",s:"longest-substring-without-repeating-characters"},
+    {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:239,n:"Sliding Window Maximum",d:"hard",s:"sliding-window-maximum"}
+  ]
+};
+
+const COMPANIES_DATA = {
+  "UK Sponsor Evidence": [
+    {name:"Amazon",sector:"Cloud, e-commerce",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.amazon.jobs/en/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Amazon UK Services Ltd."},
+    {name:"Adobe",sector:"Creative & enterprise SaaS",location:"Reading / UK",priority:"A",sponsor:"check",url:"https://careers.adobe.com/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Adobe Systems Europe Limited."},
+    {name:"Microsoft",sector:"Cloud, dev tools, productivity",location:"Reading / London",priority:"A",sponsor:"check",url:"https://careers.microsoft.com/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Microsoft Limited."},
+    {name:"Apple",sector:"Consumer technology, platforms",location:"London / UK",priority:"A",sponsor:"check",url:"https://jobs.apple.com/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Apple Europe Limited."},
+    {name:"Netflix",sector:"Streaming, entertainment tech",location:"London / UK",priority:"A",sponsor:"check",url:"https://jobs.netflix.com/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Netflix Studios UK Limited."},
+    {name:"Arm",sector:"Semiconductor, computing platforms",location:"Cambridge / UK",priority:"A",sponsor:"check",url:"https://careers.arm.com/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Arm Limited."},
+    {name:"Databricks",sector:"Data & AI platform",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.databricks.com/company/careers",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register (A-rated). Legal entity: Databricks U.K. Limited."},
+    {name:"Cloudflare",sector:"Internet infra, cybersecurity",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.cloudflare.com/careers/jobs/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register (A-rated). Legal entity: Cloudflare Limited."},
+    {name:"Uber",sector:"Mobility & delivery tech",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.uber.com/global/en/careers/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register (A-rated). Legal entity: Uber London Limited."},
+    {name:"Spotify",sector:"Audio streaming",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.lifeatspotify.com/jobs",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Spotify Limited."},
+    {name:"IBM",sector:"Enterprise software, cloud, AI",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.ibm.com/careers",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: IBM UK Ltd."},
+    {name:"TikTok / ByteDance",sector:"Consumer software, video, adtech",location:"London / UK",priority:"A",sponsor:"check",url:"https://careers.tiktok.com/",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register (A-rated). Legal entity: TikTok Information Technologies UK Limited."},
+    {name:"Ocado Group",sector:"Retail tech, automation, logistics",location:"Hatfield / London",priority:"A",sponsor:"check",url:"https://careers.ocadogroup.com/",note:"Careers page states sponsor licence held; sponsorship depends on vacancy. Verify employing entity."},
+    {name:"Accenture",sector:"Technology consulting",location:"London / UK",priority:"B",sponsor:"check",url:"https://www.accenture.com/gb-en/careers",note:"Previously marked as sponsor evidence; re-check exact legal entity and Skilled Worker route in current register. Legal entity: Accenture (UK) Limited. Check client/project and role type."}
+  ],
+  "UK Targets — A-tier": [
+    {name:"Deliveroo",sector:"Food delivery marketplace",location:"London",priority:"A",sponsor:"check",url:"https://careers.deliveroo.co.uk/",note:"High-value target. Marketplace, storefront and backend engineering. Verify in UKVI register."},
+    {name:"Expedia Group",sector:"Travel technology",location:"London / UK",priority:"A",sponsor:"check",url:"https://careers.expediagroup.com/",note:"Travel booking, search, inventory, platform engineering. Verify in UKVI register."},
+    {name:"Booking.com",sector:"Travel technology",location:"London / UK",priority:"A",sponsor:"check",url:"https://careers.booking.com/",note:"Marketplace, search, recommendations. NL sponsor confirmed separately."},
+    {name:"Skyscanner",sector:"Travel search",location:"UK / London",priority:"A",sponsor:"check",url:"https://www.skyscanner.net/jobs/",note:"Search, pricing, data-intensive engineering. Verify in UKVI register."},
+    {name:"Google / DeepMind",sector:"Search, cloud, AI",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.google.com/about/careers/applications/",note:"Backend, distributed systems, infra and AI. Verify UK entity."},
+    {name:"Meta",sector:"Consumer platforms, infra",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.metacareers.com/",note:"Backend, infra, product engineering. Verify UK entity."},
+    {name:"Salesforce",sector:"Enterprise SaaS / CRM",location:"London / UK",priority:"A",sponsor:"check",url:"https://careers.salesforce.com/",note:"SaaS platform, cloud, backend. Sponsor-route listing found; verify entity."},
+    {name:"Cisco",sector:"Networking, cloud, security",location:"London / UK",priority:"A",sponsor:"check",url:"https://jobs.cisco.com/",note:"Network software, cloud, security. Verify UK entity."},
+    {name:"Oracle",sector:"Cloud, enterprise, databases",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.oracle.com/careers/",note:"Database, cloud infra, enterprise backend. Verify UK entity."},
+    {name:"GitHub",sector:"Developer platform",location:"UK / remote",priority:"A",sponsor:"check",url:"https://www.github.careers/",note:"Developer tools, platform, backend. Verify UK location and sponsor entity."},
+    {name:"GitLab",sector:"DevOps & developer platform",location:"UK / remote",priority:"A",sponsor:"check",url:"https://about.gitlab.com/jobs/",note:"DevOps, platform engineering, remote-first. Verify UK location and sponsor entity."},
+    {name:"Shopify",sector:"Commerce software",location:"UK / remote",priority:"A",sponsor:"check",url:"https://www.shopify.com/careers",note:"Commerce platforms, APIs, full-stack. Check hiring country."},
+    {name:"eBay",sector:"E-commerce marketplace",location:"London / UK",priority:"A",sponsor:"check",url:"https://jobs.ebayinc.com/",note:"Marketplace, search, payments, full-stack. Verify entity."},
+    {name:"Spotify (targets)",sector:"Audio streaming",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.lifeatspotify.com/jobs",note:"Streaming, recommendations, backend. Sponsor confirmed (see Evidence tab)."},
+    {name:"Just Eat Takeaway",sector:"Food delivery marketplace",location:"London / UK",priority:"A",sponsor:"check",url:"https://careers.justeattakeaway.com/",note:"Marketplace, fulfilment, consumer apps. Verify entity."},
+    {name:"Tripadvisor",sector:"Travel platform",location:"UK / London",priority:"A",sponsor:"check",url:"https://careers.tripadvisor.com/",note:"Search, reviews, recommendations. Verify entity."},
+    {name:"Amazon Web Services",sector:"Cloud infrastructure",location:"London / UK",priority:"A",sponsor:"check",url:"https://www.amazon.jobs/en/teams/amazon-web-services",note:"Cloud, backend, infra, security. Amazon UK Services confirmed on Evidence tab."},
+    {name:"NVIDIA",sector:"AI & computing platforms",location:"UK offices",priority:"A",sponsor:"check",url:"https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",note:"AI infra, systems, developer tools. Verify UK entity."},
+    {name:"LinkedIn",sector:"Professional network, enterprise",location:"London / UK",priority:"A",sponsor:"check",url:"https://careers.linkedin.com/",note:"Consumer and enterprise platform, distributed backend. Verify UK entity."},
+    {name:"CrowdStrike",sector:"Cybersecurity",location:"UK / London",priority:"A",sponsor:"check",url:"https://www.crowdstrike.com/careers/",note:"Endpoint security, cloud security, backend. Verify entity."},
+    {name:"Palo Alto Networks",sector:"Cybersecurity",location:"UK / London",priority:"A",sponsor:"check",url:"https://jobs.paloaltonetworks.com/",note:"Security platforms, distributed backend. Verify entity."},
+    {name:"Darktrace",sector:"Cybersecurity / AI",location:"Cambridge / London",priority:"A",sponsor:"check",url:"https://darktrace.com/careers",note:"Security analytics, software engineering. Cambridge HQ — good for UK base."}
+  ],
+  "UK Targets — B-tier": [
+    {name:"Figma",sector:"Collaborative design SaaS",location:"London / UK",priority:"B",sponsor:"check",url:"https://www.figma.com/careers/",note:"Collaborative SaaS, real-time features, full-stack. Verify entity."},
+    {name:"Dropbox",sector:"Cloud collaboration",location:"UK / remote",priority:"B",sponsor:"check",url:"https://jobs.dropbox.com/",note:"Cloud storage, collaboration, backend. Check UK location."},
+    {name:"Snowflake",sector:"Cloud data platform",location:"London / UK",priority:"B",sponsor:"check",url:"https://careers.snowflake.com/",note:"Data platform, cloud systems, backend. Verify entity."},
+    {name:"MongoDB",sector:"Database software",location:"London / UK",priority:"B",sponsor:"check",url:"https://www.mongodb.com/company/careers",note:"Database platform, cloud services, developer tooling."},
+    {name:"ServiceNow",sector:"Enterprise workflow SaaS",location:"London / UK",priority:"B",sponsor:"check",url:"https://careers.servicenow.com/",note:"Enterprise SaaS, platform, full-stack."},
+    {name:"Workday",sector:"Enterprise SaaS",location:"London / UK",priority:"B",sponsor:"check",url:"https://careers.workday.com/",note:"Platform, HR SaaS, backend, full-stack."},
+    {name:"Canonical",sector:"Linux & open-source software",location:"UK / remote",priority:"B",sponsor:"check",url:"https://canonical.com/careers",note:"Ubuntu, cloud, platform, open-source engineering."},
+    {name:"Red Hat",sector:"Enterprise open-source",location:"UK / remote",priority:"B",sponsor:"check",url:"https://www.redhat.com/en/jobs",note:"Linux, cloud, containers, platform engineering."},
+    {name:"Twilio",sector:"Communications APIs",location:"London / UK",priority:"B",sponsor:"check",url:"https://www.twilio.com/en-us/company/jobs",note:"API platforms, messaging, distributed backend."},
+    {name:"Snyk",sector:"Developer security",location:"London / UK",priority:"B",sponsor:"check",url:"https://snyk.io/careers/",note:"Developer tools, security, cloud platform. London-founded."},
+    {name:"Grafana Labs",sector:"Observability software",location:"UK / remote",priority:"B",sponsor:"check",url:"https://grafana.com/about/careers/",note:"Developer tools, monitoring, data, cloud-native."},
+    {name:"Hugging Face",sector:"AI developer platform",location:"UK / remote",priority:"B",sponsor:"check",url:"https://apply.workable.com/huggingface/",note:"AI tooling, open-source platforms, infra."},
+    {name:"Electronic Arts",sector:"Games & entertainment tech",location:"Guildford / UK",priority:"B",sponsor:"check",url:"https://www.ea.com/careers",note:"Game systems, backend services, online platforms."},
+    {name:"Rockstar Games",sector:"Games & entertainment tech",location:"UK studios",priority:"B",sponsor:"check",url:"https://www.rockstargames.com/careers",note:"Game engines, online services, infrastructure. Edinburgh/Leeds studios."},
+    {name:"Ubisoft",sector:"Games technology",location:"UK studios",priority:"B",sponsor:"check",url:"https://www.ubisoft.com/en-us/company/careers/locations/united-kingdom",note:"Game systems, platform engineering."},
+    {name:"Thoughtworks",sector:"Software engineering consultancy",location:"London / UK",priority:"B",sponsor:"check",url:"https://www.thoughtworks.com/careers",note:"Full-stack, platform, cloud, software delivery. Check role/client."},
+    {name:"Dynatrace",sector:"Observability software",location:"UK / London",priority:"B",sponsor:"check",url:"https://www.dynatrace.com/careers/",note:"Monitoring, tracing, platform engineering."},
+    {name:"Equinix",sector:"Data centres & infra",location:"London / UK",priority:"B",sponsor:"check",url:"https://careers.equinix.com/",note:"Cloud networking, automation, infrastructure software."},
+    {name:"Bending Spoons",sector:"Digital products",location:"London / Milan",priority:"B",sponsor:"check",url:"https://jobs.bendingspoons.com/",note:"High-selectivity process. First months in Milan per policy — check current requirement."},
+    {name:"Amadeus",sector:"Travel technology",location:"London / UK",priority:"B",sponsor:"check",url:"https://amadeus.com/en/careers",note:"Travel booking, reservation APIs, data platforms."},
+    {name:"Rippling",sector:"HR, IT & payroll SaaS",location:"London / UK",priority:"B",sponsor:"check",url:"https://www.rippling.com/careers",note:"Product engineering, enterprise platform. Finance-adjacent."},
+    {name:"Nokia",sector:"Telecom software",location:"Cambridge / UK",priority:"B",sponsor:"check",url:"https://www.nokia.com/about-us/careers/",note:"Networking, cloud, telecom systems."},
+    {name:"Ericsson",sector:"Telecom software",location:"London / UK",priority:"B",sponsor:"check",url:"https://www.ericsson.com/en/careers",note:"Network software, cloud-native systems, platform."},
+    {name:"Tata Consultancy Services",sector:"Technology services",location:"UK offices",priority:"B",sponsor:"check",url:"https://www.tcs.com/careers",note:"Software engineering, cloud, enterprise. Check sponsorship route."}
+  ]};
+
+const SD_DATA = {
+  foundations:[
+    "DNS — how domain names resolve to IPs",
+    "Load Balancer — L4 vs L7, round robin, least connections",
+    "CDN — edge caching, how static assets are served globally",
+    "Caching — Redis vs Memcached, cache-aside, write-through, eviction policies",
+    "Databases — SQL vs NoSQL, ACID, CAP theorem, indexing",
+    "Message Queues — Kafka, RabbitMQ, Azure Service Bus",
+    "API Gateway — rate limiting, auth, routing",
+    "Horizontal vs Vertical scaling",
+    "Replication & Sharding — leader/follower, consistent hashing",
+    "REST vs gRPC vs GraphQL"
+  ],
+  intermediate:[
+    "Database indexing in depth — B-tree, composite index, covering index",
+    "SQL window functions — ROW_NUMBER, RANK, LAG/LEAD, PARTITION BY",
+    "Distributed systems — eventual consistency, strong consistency",
+    "Rate limiting algorithms — token bucket, sliding window",
+    "Bloom filters — probabilistic data structures",
+    "Consistent hashing — for distributed caches and shards",
+    "Event-driven architecture — pub/sub, event sourcing, CQRS",
+    "Websockets vs HTTP polling vs SSE",
+    "Microservices patterns — circuit breaker, saga, bulkhead",
+    "Observability — logging, metrics, distributed tracing"
+  ],
+  problems:[
+    {title:"Design a URL shortener",sub:"DB, hashing, redirect, analytics",d:"easy"},
+    {title:"Design a pastebin",sub:"Storage, expiry, access control",d:"easy"},
+    {title:"Design a rate limiter",sub:"Token bucket, Redis, distributed state",d:"easy"},
+    {title:"Design a leaderboard",sub:"Redis sorted sets, DB aggregation",d:"easy"},
+    {title:"Design a notification service",sub:"Message queue, fan-out, delivery tracking",d:"easy"},
+    {title:"Design Twitter/X feed",sub:"Fan-out on write vs read, cache, CDN",d:"medium"},
+    {title:"Design Uber / ride-hailing",sub:"Location service, matching, surge pricing",d:"medium"},
+    {title:"Design TripAdvisor search",sub:"Search index, Elasticsearch, ranking",d:"medium"},
+    {title:"Design Spotify",sub:"CDN, audio streaming, playlist sync",d:"medium"},
+    {title:"Design Deliveroo / food delivery",sub:"Order state machine, driver tracking, ETA",d:"medium"},
+    {title:"Design WhatsApp chat",sub:"WebSockets, message queue, delivery receipts",d:"medium"},
+    {title:"Design Google Drive",sub:"Blob storage, file chunking, versioning",d:"medium"},
+    {title:"Design YouTube",sub:"Upload pipeline, encoding, CDN delivery",d:"medium"},
+    {title:"Design Google Search",sub:"Crawling, indexing, PageRank, serving",d:"hard"},
+    {title:"Design a distributed cache",sub:"Consistent hashing, replication, eviction",d:"hard"},
+    {title:"Design a global payment system",sub:"Idempotency, double-entry ledger, FX",d:"hard"},
+    {title:"Design a stock exchange",sub:"Order book, matching engine, low latency",d:"hard"},
+    {title:"Design an ad auction system",sub:"RTB, targeting, click fraud, billing",d:"hard"},
+    {title:"Design Airbnb",sub:"Search, booking, calendaring, payments",d:"hard"},
+    {title:"Design Netflix",sub:"Content delivery, encoding, recommendation",d:"hard"}
+  ]
+};
+
+const AMINA_MILESTONES = [
+  {
+    phase:"Phase 1 · Now → Mar 2027", color:"--blue-bg,--blue-text",
+    items:[
+      {title:"Complete Full Stack Open parts 1–4", sub:"React fundamentals, hooks, state, REST, Node — your React foundation. fullstackopen.com — free."},
+      {title:"Set up monorepo: React frontend + .NET 8 API", sub:"GitHub repo, folder structure, Docker Compose for local dev, README. This is your open-source portfolio piece."},
+      {title:"Build user auth", sub:"ASP.NET Identity + JWT + refresh tokens. React login/register pages. 'Sign in with Google' optional but impressive."},
+      {title:"Basic journey mode (v0.1)", sub:"User sets destination + ETA. Geolocation API captures GPS. Coordinates stored in PostgreSQL via .NET API. No real-time yet."},
+      {title:"Guardian link sharing", sub:"User generates a share link. Guardian opens it in browser and sees last known location on a Leaflet.js map. Static — no live update yet."}
+    ]
+  },
+  {
+    phase:"Phase 2 · Mar → Sep 2027", color:"--purple-bg,--purple-text",
+    items:[
+      {title:"Real-time location via SignalR", sub:".NET SignalR hub streams GPS pings to guardian view. This teaches WebSocket architecture — directly maps to 'Design Uber' in interviews."},
+      {title:"Anomaly detection + auto-alert", sub:"Server-side: detect if pings stop for 60s or speed drops to 0 mid-journey. Trigger push notification to guardian. Teaches event-driven architecture."},
+      {title:"One-tap SOS button", sub:"Hold 3 seconds to trigger. Sends push notification + Twilio SMS with GPS coords to all trusted contacts. Browser Notification API + Twilio SDK."},
+      {title:"PWA: offline queue + service worker", sub:"IndexedDB stores GPS when offline. Service worker syncs when connection returns. This is the local-first architecture from your PRD."},
+      {title:"Safe zones + arrival notifications", sub:"User marks locations as safe. Geofence detection on client. Auto-notify guardian on arrival. Reduces battery drain inside safe zones."},
+      {title:"Deploy to production", sub:"React → Vercel. .NET API → Railway or Render. PostgreSQL → Supabase free tier. Your app is now live and shareable."}
+    ]
+  },
+  {
+    phase:"Phase 3 · In UK (future)", color:"--amber-bg,--amber-text",
+    items:[
+      {title:"Crowdsourced safety map", sub:"Aggregate anonymised journey data into heatmap. Redis for fast zone lookups. This teaches data aggregation at scale — system design interview gold."},
+      {title:"Full Stack Open parts 5–9 (TypeScript, GraphQL, testing)", sub:"Upgrade codebase to TypeScript. Add integration tests. Makes Amina a production-quality portfolio piece."},
+      {title:"React Native wrapper (optional)", sub:"If you want the fake call + lock screen UX from the PRD, wrap the React app in Expo / React Native. Reuses all your existing components."},
+      {title:"Open source community", sub:"Write a good README, add contribution guidelines, submit to awesome-safety-apps lists. Real OSS contributions are a differentiator for UK applications."}
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════
+// CLOUD SYNC via Anthropic Storage API
+// ══════════════════════════════════════════════
+const STORAGE_KEY = "uk_prep_tracker_v1";
+let state = { roadmap:{}, lc:{}, sd:{}, amina:{}, companies:{}, jobs:[], coding:{} };
+let syncTimer = null;
+let dirty = false;
+
+function setSyncStatus(status, label){
+  const dot = document.getElementById("sync-dot");
+  const lbl = document.getElementById("sync-label");
+  dot.className = "sync-dot " + status;
+  lbl.textContent = label;
+}
+
+async function loadFromCloud(){
+  setSyncStatus("syncing","loading…");
+  try { const local=localStorage.getItem(STORAGE_KEY); if(local) state={roadmap:{},lc:{},sd:{},amina:{},companies:{},jobs:[],coding:{},...JSON.parse(local)}; setSyncStatus("synced","saved on this device"); }
+  catch(e){ setSyncStatus("error","local save unavailable"); }
+}
+
+async function saveToCloud(){
+  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); setSyncStatus("synced","saved on this device"); dirty=false; }
+  catch(e){ setSyncStatus("error","save failed — export backup"); }
+}
+
+function scheduleSave(){
+  dirty = true;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(saveToCloud, 1200);
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+document.querySelectorAll(".ntab").forEach(t => {
+  t.addEventListener("click", function(){
+    document.querySelectorAll(".ntab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+    this.classList.add("active");
+    document.getElementById("page-"+this.dataset.page).classList.add("active");
+  });
+});
+
+// ══════════════════════════════════════════════
+// ROADMAP
+// ══════════════════════════════════════════════
+function renderRoadmap(){
+  const el = document.getElementById("roadmap-phases");
+  el.innerHTML = "";
+  PHASES.forEach(p=>{
+    const [bgVar,txVar] = p.badge.split(",");
+    let done=0;
+    p.tasks.forEach((_,i)=>{ if(state.roadmap[p.id+"_"+i]) done++; });
+    const pct = Math.round(done/p.tasks.length*100);
+    const div = document.createElement("div");
+    div.className="phase-card";
+    div.innerHTML=`
+      <div class="phase-header">
+        <span class="phase-badge" style="background:var(${bgVar});color:var(${txVar})">${p.label}</span>
+        <span class="phase-title">${p.title}</span>
+        <span class="phase-date">${p.date}</span>
+      </div>
+      <div class="pbar-bg"><div class="pbar-fill" id="pbar-${p.id}" style="width:${pct}%;background:var(${p.bar})"></div></div>
+      <div class="task-list">${p.tasks.map((t,i)=>{
+        const key=p.id+"_"+i;
+        const chk=state.roadmap[key];
+        return `<div class="task-row">
+          <input type="checkbox" data-sec="roadmap" data-key="${key}" data-pid="${p.id}" ${chk?"checked":""}>
+          <span class="task-label${chk?" done":""}">${t}</span>
+        </div>`;
+      }).join("")}</div>`;
+    el.appendChild(div);
+  });
+  attachCheckboxes("roadmap");
+  updateRoadmapStats();
+}
+
+function updateRoadmapStats(){
+  let done=0,total=0;
+  PHASES.forEach(p=>p.tasks.forEach((_,i)=>{
+    total++;
+    if(state.roadmap[p.id+"_"+i]) done++;
+  }));
+  document.getElementById("rm-done").textContent=done;
+  document.getElementById("rm-total").textContent=total;
+  document.getElementById("rm-pct").textContent=Math.round(done/total*100)+"%";
+  PHASES.forEach(p=>{
+    let d=0;
+    p.tasks.forEach((_,i)=>{ if(state.roadmap[p.id+"_"+i]) d++; });
+    const bar=document.getElementById("pbar-"+p.id);
+    if(bar) bar.style.width=Math.round(d/p.tasks.length*100)+"%";
+  });
+}
+
+// ══════════════════════════════════════════════
+// LEETCODE
+// ══════════════════════════════════════════════
+let lcCompany = "Amazon";
+let lcDiff = "all";
+
+function renderCoChips(){
+  const el=document.getElementById("co-chips");
+  el.innerHTML=Object.keys(COMPANIES).map(c=>
+    `<div class="chip${c===lcCompany?" active":""}" data-co="${c}">${c}</div>`
+  ).join("");
+  el.querySelectorAll(".chip").forEach(c=>{
+    c.addEventListener("click",function(){
+      lcCompany=this.dataset.co;
+      renderCoChips(); renderLC();
+    });
+  });
+}
+
+function renderDiffChips(){
+  const el=document.getElementById("diff-chips");
+  el.innerHTML="";
+  ["all","easy","medium","hard"].forEach(d=>{
+    const div=document.createElement("div");
+    div.className="chip"+(d===lcDiff?" active"+(d!=="all"?" "+d:""):"");
+    div.dataset.diff=d;
+    div.textContent=d==="all"?"All diff":d.charAt(0).toUpperCase()+d.slice(1);
+    div.addEventListener("click",function(){
+      lcDiff=this.dataset.diff;
+      renderDiffChips(); renderLC();
+    });
+    el.appendChild(div);
+  });
+}
+
+function renderLC(){
+  const search=(document.getElementById("lc-search").value||"").toLowerCase();
+  const probs=COMPANIES[lcCompany]||[];
+  const filtered=probs.filter(p=>{
+    if(lcDiff!=="all"&&p.d!==lcDiff) return false;
+    if(search&&!p.n.toLowerCase().includes(search)&&!String(p.id).includes(search)) return false;
+    return true;
+  });
+  const el=document.getElementById("lc-list");
+  if(!filtered.length){ el.innerHTML=`<div class="empty">No problems match.</div>`; return; }
+  el.innerHTML=filtered.map(p=>{
+    const key=p.s;
+    const solved=!!state.lc[key];
+    const dc=p.d==="easy"?"e-b":p.d==="medium"?"m-b":"h-b";
+    return `<div class="lc-row${solved?" solved":""}">
+      <input type="checkbox" class="lc-check" data-sec="lc" data-key="${key}" ${solved?"checked":""}>
+      <span class="lc-num">#${p.id}</span>
+      <a class="lc-name${solved?" done":""}" href="https://leetcode.com/problems/${p.s}/" target="_blank" rel="noopener">${p.n}</a>
+      <span class="diff-badge ${dc}">${p.d}</span>
+    </div>`;
+  }).join("");
+  attachCheckboxes("lc");
+  updateLCStats();
+}
+
+function updateLCStats(){
+  // Count unique slugs across all companies
+  const allSlugs=new Set();
+  Object.values(COMPANIES).forEach(probs=>probs.forEach(p=>allSlugs.add(p.s)));
+  const total=allSlugs.size;
+  const done=Array.from(allSlugs).filter(s=>!!state.lc[s]).length;
+  document.getElementById("lc-done").textContent=done;
+  document.getElementById("lc-total").textContent=total;
+  document.getElementById("lc-pct").textContent=total?Math.round(done/total*100)+"%":"0%";
+  document.getElementById("lc-bar").style.width=total?Math.round(done/total*100)+"%":"0%";
+}
+
+// ══════════════════════════════════════════════
+// SYSTEM DESIGN
+// ══════════════════════════════════════════════
+function renderSD(){
+  const el=document.getElementById("sd-content");
+  el.innerHTML="";
+
+  // Foundations
+  const f=document.createElement("div");
+  f.className="sd-block";
+  f.innerHTML=`<h3><span class="sd-tag" style="background:var(--blue-bg);color:var(--blue-text)">Phase 1</span> Foundations</h3>
+  ${SD_DATA.foundations.map((t,i)=>{
+    const key="f_"+i; const chk=state.sd[key];
+    return `<div class="sd-task"><input type="checkbox" data-sec="sd" data-key="${key}" ${chk?"checked":""}><span class="sd-label${chk?" done":""}">${t}</span></div>`;
+  }).join("")}`;
+  el.appendChild(f);
+
+  // Intermediate
+  const im=document.createElement("div");
+  im.className="sd-block";
+  im.innerHTML=`<h3><span class="sd-tag" style="background:var(--purple-bg);color:var(--purple-text)">Phase 2</span> Intermediate concepts</h3>
+  ${SD_DATA.intermediate.map((t,i)=>{
+    const key="i_"+i; const chk=state.sd[key];
+    return `<div class="sd-task"><input type="checkbox" data-sec="sd" data-key="${key}" ${chk?"checked":""}><span class="sd-label${chk?" done":""}">${t}</span></div>`;
+  }).join("")}`;
+  el.appendChild(im);
+
+  // Problems
+  ["easy","medium","hard"].forEach(diff=>{
+    const problems=SD_DATA.problems.filter(p=>p.d===diff);
+    const wrap=document.createElement("div");
+    wrap.className="sd-block";
+    const colors={easy:["var(--easy-bg)","var(--easy-text)"],medium:["var(--med-bg)","var(--med-text)"],hard:["var(--hard-bg)","var(--hard-text)"]};
+    const [bg,tx]=colors[diff];
+    const phaseLabel=diff==="easy"?"Phase 1":diff==="medium"?"Phase 2":"Phase 3";
+    wrap.innerHTML=`<h3><span class="sd-tag" style="background:${bg};color:${tx}">${phaseLabel}</span> ${diff.charAt(0).toUpperCase()+diff.slice(1)} problems</h3>
+    <div class="prob-grid">${problems.map((p,i)=>{
+      const key="prob_"+diff+"_"+i; const chk=state.sd[key];
+      return `<div class="sd-problem">
+        <input type="checkbox" data-sec="sd" data-key="${key}" ${chk?"checked":""}>
+        <div class="sd-prob-content">
+          <div class="sd-prob-title${chk?" done":""}">${p.title}</div>
+          <div class="sd-prob-sub">${p.sub}</div>
+        </div>
+      </div>`;
+    }).join("")}</div>`;
+    el.appendChild(wrap);
+  });
+
+  // Framework
+  const fw=document.createElement("div");
+  fw.className="sd-block";
+  fw.innerHTML=`<h3>Interview framework</h3>
+  <div class="framework-box">
+    <strong>1. Clarify (5 min)</strong> — functional requirements, non-functional (scale, latency, availability), ask for DAU / QPS / storage estimates<br><br>
+    <strong>2. Estimate (3 min)</strong> — write/read ratio · data size × DAU · peak QPS = daily requests ÷ 86400 × 10<br><br>
+    <strong>3. High-level design (10 min)</strong> — draw: clients → API gateway → services → DB/cache · cover the main happy path end-to-end<br><br>
+    <strong>4. Deep dive (20 min)</strong> — pick 2–3 interesting components · DB schema, indexing strategy · caching layer (TTL, invalidation) · scaling bottlenecks<br><br>
+    <strong>5. Trade-offs (5 min)</strong> — what would you do differently at 10× scale? What did you sacrifice (consistency vs availability)?
+  </div>`;
+  el.appendChild(fw);
+
+  attachCheckboxes("sd");
+  updateSDStats();
+}
+
+function updateSDStats(){
+  let done=0,total=0;
+  const allKeys=[
+    ...SD_DATA.foundations.map((_,i)=>"f_"+i),
+    ...SD_DATA.intermediate.map((_,i)=>"i_"+i),
+    ...["easy","medium","hard"].flatMap(d=>SD_DATA.problems.filter(p=>p.d===d).map((_,i)=>"prob_"+d+"_"+i))
+  ];
+  allKeys.forEach(k=>{ total++; if(state.sd[k]) done++; });
+  document.getElementById("sd-done").textContent=done;
+  document.getElementById("sd-total").textContent=total;
+  document.getElementById("sd-pct").textContent=Math.round(done/total*100)+"%";
+}
+
+// ══════════════════════════════════════════════
+// SHARED CHECKBOX HANDLER
+// ══════════════════════════════════════════════
+function attachCheckboxes(sec){
+  document.querySelectorAll(`input[type=checkbox][data-sec="${sec}"]`).forEach(cb=>{
+    cb.addEventListener("change",function(){
+      state[sec][this.dataset.key]=this.checked;
+      const lbl=this.nextElementSibling;
+      if(lbl){
+        // For co-row the label is inside .co-row-body > .co-name
+        if(sec==="companies"){
+          const nameEl=lbl.querySelector(".co-name");
+          if(nameEl) nameEl.classList.toggle("done",this.checked);
+        } else {
+          lbl.classList.toggle("done",this.checked);
+        }
+      }
+      const row=this.closest(".lc-row");
+      if(row) row.classList.toggle("solved",this.checked);
+      if(this.dataset.pid){
+        const p=PHASES.find(x=>x.id===this.dataset.pid);
+        if(p){
+          let d=0;
+          p.tasks.forEach((_,i)=>{ if(state.roadmap[p.id+"_"+i]) d++; });
+          const bar=document.getElementById("pbar-"+p.id);
+          if(bar) bar.style.width=Math.round(d/p.tasks.length*100)+"%";
+        }
+      }
+      if(sec==="roadmap") updateRoadmapStats();
+      if(sec==="lc") updateLCStats();
+      if(sec==="sd") updateSDStats();
+      if(sec==="amina") updateAminaStats();
+      if(sec==="companies") updateCompaniesStats();
+      scheduleSave();
+    });
+  });
+}
+
+// ══════════════════════════════════════════════
+// AMINA
+// ══════════════════════════════════════════════
+function renderAmina(){
+  const el = document.getElementById("amina-milestones");
+  el.innerHTML = "";
+  AMINA_MILESTONES.forEach((phase, pi) => {
+    const [bgVar, txVar] = phase.color.split(",");
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "margin-bottom:.5rem";
+    wrap.innerHTML = `<div style="font-size:12px;font-weight:500;color:var(${txVar});background:var(${bgVar});display:inline-block;padding:3px 10px;border-radius:6px;margin-bottom:.6rem">${phase.phase}</div>`;
+    phase.items.forEach((item, ii) => {
+      const key = "am_"+pi+"_"+ii;
+      const chk = !!state.amina[key];
+      const row = document.createElement("div");
+      row.className = "amina-milestone";
+      row.innerHTML = `<input type="checkbox" data-sec="amina" data-key="${key}" ${chk?"checked":""}><div class="amina-milestone-content"><div class="amina-milestone-title${chk?" done":""}">${item.title}</div><div class="amina-milestone-sub">${item.sub}</div></div>`;
+      wrap.appendChild(row);
+    });
+    el.appendChild(wrap);
+  });
+  attachCheckboxes("amina");
+  updateAminaStats();
+}
+
+function updateAminaStats(){
+  let done=0, total=0;
+  AMINA_MILESTONES.forEach((phase, pi) => phase.items.forEach((_, ii) => {
+    total++;
+    if(state.amina["am_"+pi+"_"+ii]) done++;
+  }));
+  document.getElementById("am-done").textContent = done;
+  document.getElementById("am-total").textContent = total;
+  document.getElementById("am-pct").textContent = total ? Math.round(done/total*100)+"%" : "0%";
+}
+
+// ══════════════════════════════════════════════
+// COMPANIES
+// ══════════════════════════════════════════════
+let coCountry = "all";
+let coPriority = "all";
+
+function renderCoCountryChips(){
+  const el = document.getElementById("co-country-chips");
+  if(!el) return;
+  const opts = ["all","UK"];
+  el.innerHTML = opts.map(o =>
+    `<div class="chip${o===coCountry?" active":""}" data-country="${o}">${o==="all"?"All":o}</div>`
+  ).join("");
+  el.querySelectorAll(".chip").forEach(c=>{
+    c.addEventListener("click",function(){
+      coCountry=this.dataset.country;
+      renderCoCountryChips(); renderCompanies();
+    });
+  });
+}
+
+function renderCoPriChips(){
+  const el = document.getElementById("co-pri-chips");
+  if(!el) return;
+  const opts = ["all","A","B"];
+  el.innerHTML = opts.map(o =>
+    `<div class="chip${o===coPriority?" active":""}" data-pri="${o}">${o==="all"?"All priority":"Priority "+o}</div>`
+  ).join("");
+  el.querySelectorAll(".chip").forEach(c=>{
+    c.addEventListener("click",function(){
+      coPriority=this.dataset.pri;
+      renderCoPriChips(); renderCompanies();
+    });
+  });
+}
+
+function renderCompanies(){
+  const search = (document.getElementById("co-search")?.value||"").toLowerCase();
+  const el = document.getElementById("companies-list");
+  if(!el) return;
+  el.innerHTML = "";
+
+  const sectionMeta = {
+    "UK Sponsor Evidence": {country:"UK", badge:"sponsor-check", badgeLabel:"Re-check UKVI", color:"--amber-bg,--amber-text"},
+    "UK Targets — A-tier": {country:"UK", badge:"sponsor-check", badgeLabel:"Verify sponsor", color:"--blue-bg,--blue-text"},
+    "UK Targets — B-tier": {country:"UK", badge:"sponsor-check", badgeLabel:"Verify UKVI", color:"--purple-bg,--purple-text"}
+  };
+
+  Object.entries(COMPANIES_DATA).forEach(([section, companies]) => {
+    const meta = sectionMeta[section];
+    // Country filter
+    if(coCountry !== "all" && meta.country !== coCountry) return;
+
+    // Filter companies
+    const visible = companies.filter(c => {
+      if(coPriority !== "all" && c.priority !== coPriority) return false;
+      if(search && !c.name.toLowerCase().includes(search) && !c.sector.toLowerCase().includes(search)) return false;
+      return true;
+    });
+    if(!visible.length) return;
+
+    const [bgVar, txVar] = meta.color.split(",");
+    const div = document.createElement("div");
+    div.className = "co-section";
+    div.innerHTML = `<div class="co-section-title">
+      <span class="co-section-badge" style="background:var(${bgVar});color:var(${txVar})">${meta.country}</span>
+      ${section}
+    </div>`;
+
+    visible.forEach(c => {
+      const key = "co_" + c.name.replace(/[^a-z0-9]/gi,"_").toLowerCase();
+      const chk = !!state.companies[key];
+      const row = document.createElement("div");
+      row.className = "co-row";
+      row.innerHTML = `<input type="checkbox" data-sec="companies" data-key="${key}" ${chk?"checked":""}>
+        <div class="co-row-body">
+          <div class="co-name${chk?" done":""}">${c.name} — <a href="${c.url}" target="_blank" rel="noopener">${c.sector}</a></div>
+          <div class="co-meta">${c.location}</div>
+          <div class="co-badges">
+            <span class="co-badge pri-${c.priority.toLowerCase()}">Priority ${c.priority}</span>
+            <span class="co-badge ${c.sponsor==="confirmed"?meta.badge:"sponsor-check"}">${c.sponsor==="confirmed"?meta.badgeLabel:"Verify UKVI"}</span>
+            ${c.finance?'<span class="co-badge finance">Finance-adjacent</span>':""}
+          </div>
+          <div class="co-meta" style="margin-top:4px">${c.note}</div>
+        </div>`;
+      div.appendChild(row);
+    });
+    el.appendChild(div);
+  });
+
+  attachCheckboxes("companies");
+  updateCompaniesStats();
+}
+
+function updateCompaniesStats(){
+  let total=0, done=0;
+  Object.values(COMPANIES_DATA).forEach(list=>list.forEach(c=>{
+    const key="co_"+c.name.replace(/[^a-z0-9]/gi,"_").toLowerCase();
+    total++;
+    if(state.companies[key]) done++;
+  }));
+  // Use querySelectorAll to update all instances (page may not be active)
+  const upd=(id,val)=>{ const e=document.getElementById(id); if(e) e.textContent=val; };
+  upd("co-ticked",done);
+  upd("co-total",total);
+  upd("co-pct",total?Math.round(done/total*100)+"%":"0%");
+}
+
+// ══════════════════════════════════════════════
+// UK JOB PIPELINE + PRACTICAL CODING
+// ══════════════════════════════════════════════
+const CODING_EXERCISES = [
+ {group:"Core implementation",items:[
+  ["LRU cache","Implement an O(1) LRU cache with dictionary + linked list. Test capacity, update, eviction and concurrency."],
+  ["Rate limiter","Implement fixed-window and token-bucket limiters. Discuss distributed coordination and clock behaviour."],
+  ["Pagination API","Build offset and cursor pagination in ASP.NET Core + SQL. Compare consistency and query plans."],
+  ["File upload service","Stream large files, validate content, enforce limits, handle cancellation and clean partial uploads."],
+  ["Background job processor","Implement retries, exponential backoff, idempotency, dead-letter handling and graceful shutdown."],
+  ["Notification service","Design and implement email/push/SMS dispatch with preferences, retries and delivery status."]
+ ]},
+ {group:"Backend & data",items:[
+  ["URL shortener","Create short IDs, redirect endpoint, expiry, collision handling, analytics and cache strategy."],
+  ["Thread-safe in-memory store","Build concurrent read/write operations. Explain locks, ConcurrentDictionary and race conditions."],
+  ["SQL performance investigation","Given a slow query, inspect execution plan, indexes, cardinality and transaction isolation."],
+  ["REST API debugging","Diagnose a failing endpoint from logs, HTTP traces, validation, auth and database symptoms."],
+  ["Refactor legacy service","Split responsibilities, add tests, preserve behaviour and explain incremental migration."],
+  ["Event consumer","Implement at-least-once processing, deduplication, ordering assumptions and poison-message handling."]
+ ]},
+ {group:"Interview simulation",items:[
+  ["Code review exercise","Review an unfamiliar C# PR for correctness, security, performance, readability and test gaps."],
+  ["Pair-programming task","Implement a feature while narrating assumptions, trade-offs and tests in 45 minutes."],
+  ["Production incident RCA","Write a timeline, impact, root cause, contributing factors, fix and prevention actions."],
+  ["API design exercise","Define contracts, validation, errors, versioning, auth and backward compatibility." ]
+ ]}
+];
+function renderCoding(){
+ const root=document.getElementById('coding-list'); if(!root)return;
+ let total=0,done=0;
+ root.innerHTML=CODING_EXERCISES.map((g,gi)=>`<section class="coding-group"><h2>${g.group}</h2>${g.items.map((it,i)=>{const k=`${gi}_${i}`;total++;const checked=!!state.coding?.[k];if(checked)done++;return `<div class="coding-card"><input type="checkbox" data-coding-key="${k}" ${checked?'checked':''}><div><h3>${it[0]}</h3><p>${it[1]}</p></div></div>`}).join('')}</section>`).join('');
+ root.querySelectorAll('[data-coding-key]').forEach(cb=>cb.addEventListener('change',()=>{state.coding=state.coding||{};state.coding[cb.dataset.codingKey]=cb.checked;scheduleSave();renderCoding()}));
+ document.getElementById('coding-done').textContent=done;document.getElementById('coding-total').textContent=total;document.getElementById('coding-pct').textContent=Math.round(done/total*100)+'%';
+}
+function readJobForm(){return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),company:val('job-company'),title:val('job-title'),location:val('job-location'),entity:val('job-entity'),salary:val('job-salary'),experience:val('job-exp'),sponsor:val('job-sponsor'),status:val('job-status'),url:val('job-url'),notes:val('job-notes'),created:new Date().toISOString()}}
+function val(id){return document.getElementById(id)?.value?.trim()||''}
+function addJob(){const j=readJobForm();if(!j.company||!j.title){alert('Please enter at least company and role title.');return}state.jobs=state.jobs||[];state.jobs.unshift(j);['job-company','job-title','job-location','job-entity','job-salary','job-exp','job-url','job-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('job-sponsor').value='unknown';document.getElementById('job-status').value='Saved';scheduleSave();renderJobs()}
+function renderJobs(){const root=document.getElementById('jobs-list');if(!root)return;const q=val('job-search').toLowerCase(),f=val('job-status-filter');const all=state.jobs||[];const jobs=all.filter(j=>(f==='all'||j.status===f)&&(!q||[j.company,j.title,j.location,j.entity,j.notes].join(' ').toLowerCase().includes(q)));document.getElementById('job-total').textContent=all.length;document.getElementById('job-active').textContent=all.filter(j=>!['Rejected','Withdrawn','Offer'].includes(j.status)).length;document.getElementById('job-offers').textContent=all.filter(j=>j.status==='Offer').length;root.innerHTML=jobs.length?jobs.map(j=>`<article class="job-card"><div class="job-card-head"><div><h3>${esc(j.title)} · ${esc(j.company)}</h3><div class="job-meta">${esc(j.location||'Location not set')} · ${j.salary?'£'+Number(j.salary).toLocaleString('en-GB')+' base':'Salary not listed'} · ${esc(j.experience||'Experience not captured')}</div></div><span class="status-pill">${esc(j.status)}</span></div><div class="job-meta"><strong>Employing entity:</strong> ${esc(j.entity||'Not confirmed')}<br><strong>Vacancy sponsorship:</strong> ${sponsorLabel(j.sponsor)}<br>${esc(j.notes||'No notes yet')}</div><div class="job-actions">${j.url?`<a class="link-pill" href="${safeUrl(j.url)}" target="_blank" rel="noopener">Open vacancy ↗</a>`:''}<button onclick="cycleJob('${j.id}')">Advance status</button><button onclick="deleteJob('${j.id}')">Delete</button></div></article>`).join(''):'<p class="job-meta">No roles match this filter yet. Add a role above when you find a suitable vacancy.</p>'}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function safeUrl(u){try{const x=new URL(u);return ['http:','https:'].includes(x.protocol)?esc(x.href):'#'}catch{return '#'}}
+function sponsorLabel(v){return ({yes:'Advert explicitly confirms sponsorship',no:'Advert says no sponsorship',conditional:'Case-by-case / conditional',unknown:'Not stated — recruiter confirmation required'})[v]||'Not confirmed'}
+function cycleJob(id){const seq=['Saved','Researching','Applied','Recruiter screen','Technical interview','Final round','Offer'];const j=(state.jobs||[]).find(x=>x.id===id);if(!j)return;const i=seq.indexOf(j.status);j.status=seq[Math.min(i+1,seq.length-1)];scheduleSave();renderJobs()}
+function deleteJob(id){if(!confirm('Delete this tracked role?'))return;state.jobs=(state.jobs||[]).filter(x=>x.id!==id);scheduleSave();renderJobs()}
+function clearJobs(){if(!confirm('Clear the entire job pipeline?'))return;state.jobs=[];scheduleSave();renderJobs()}
+function exportBackup(){const blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),state},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uk-prep-tracker-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function importBackup(file){const reader=new FileReader();reader.onload=()=>{try{const obj=JSON.parse(reader.result);const incoming=obj.state||obj;if(!incoming||typeof incoming!=='object')throw Error('Invalid backup');if(!confirm('Import this backup and replace current tracker progress?'))return;state={roadmap:{},lc:{},sd:{},amina:{},companies:{},jobs:[],coding:{},...incoming};scheduleSave();initRender();alert('Backup imported.')}catch(e){alert('Could not import backup: '+e.message)}};reader.readAsText(file)}
+function initRender(){renderRoadmap();renderCoChips();renderDiffChips();renderLC();renderSD();renderAmina();renderCoCountryChips();renderCoPriChips();renderCompanies();renderJobs();renderCoding()}
+
+// ══════════════════════════════════════════════
+// RESET
+// ══════════════════════════════════════════════
+function resetSection(sec){
+  if(!confirm("Reset all "+sec+" progress?")) return;
+  state[sec]={};
+  if(sec==="roadmap") renderRoadmap();
+  if(sec==="lc") renderLC();
+  if(sec==="sd") renderSD();
+  if(sec==="amina") renderAmina();
+  if(sec==="companies") renderCompanies();
+  if(sec==="coding") renderCoding();
+  if(sec==="jobs") renderJobs();
+  scheduleSave();
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+async function init(){
+  await loadFromCloud();
+  renderRoadmap();
+  renderCoChips();
+  renderDiffChips();
+  renderLC();
+  renderSD();
+  renderAmina();
+  renderCoCountryChips();
+  renderCoPriChips();
+  renderCompanies();
+  renderJobs();
+  renderCoding();
+}
+
+init();
+</script>
+</body>
+</html>
