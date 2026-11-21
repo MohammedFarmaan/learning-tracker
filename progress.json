@@ -2,7 +2,9 @@
   "roadmap": {
     "p1_0": false
   },
-  "lc": {},
+  "lc": {
+    "two-sum": true
+  },
   "sd": {},
   "amina": {},
   "companies": {},
