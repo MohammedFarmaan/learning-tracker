@@ -215,6 +215,13 @@ a{color:inherit;text-decoration:none}
 .co-caution{background:var(--amber-bg);border:0.5px solid var(--amber-bar);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:var(--amber-text);line-height:1.5}
 
 
+.co-interview{margin-top:8px;border-top:1px solid var(--border);padding-top:7px;font-size:12px;color:var(--text2)}
+.co-interview summary{cursor:pointer;color:var(--teal);font-weight:600;line-height:1.5}
+.co-evidence{display:block;color:var(--text3);font-size:10px;font-weight:400;margin-top:2px}
+.co-interview-body{padding:8px 0 2px;line-height:1.6}
+.co-interview-body p{margin:5px 0}
+.co-interview-body ul{padding-left:18px;margin:5px 0}
+.co-interview-body a{color:var(--teal);text-decoration:underline;text-underline-offset:2px}
 /* UK pipeline + practical coding */
 .job-form{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin:1rem 0;box-shadow:var(--shadow)}
 .job-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
@@ -1434,6 +1441,86 @@ function renderCoPriChips(){
   });
 }
 
+const COMPANY_INTERVIEW_INTEL = {
+  "Amazon": {
+    scope:"UK-specific + recent international SDE2 reports",
+    stages:"Online assessment (DSA + work-style/Leadership Principles) → phone screen or virtual loop → DSA, low-level design and high-level system design rounds. Leadership Principles are assessed throughout; exact loop varies by level and team.",
+    exercises:"London SDE2 reports include an OA and a four-part virtual onsite combining DSA + Leadership Principles, API/class design and IoT sensor ingestion/storage/display. Recent SDE2 reports add LLD, HLD and project deep-dives.",
+    prep:"DSA (graphs, trees, heaps, intervals), LLD, distributed-system design, project deep dive, and 8–10 strong STAR stories mapped to Leadership Principles.",
+    sources:[["Amazon SDE2 — London, UK (Sep 2022)","https://leetcode.com/discuss/post/2642219/Amazon-or-SDE2-L5-or-London-UK-or-Sep-2022-Offer/"],["Amazon SDE2 — London OA","https://leetcode.com/discuss/post/518214/amazon-london-online-assessment-for-sde2/"],["Amazon SDE2 — 2026 report","https://leetcode.com/discuss/post/8420230/amazon-sde-2-interview-experience-2026-e-t1g8/"]]
+  },
+  "Google": {
+    scope:"London-specific report",
+    stages:"Recruiter conversation → one or more technical phone screens → onsite/virtual loop. Expect coding/problem solving; system design and behavioural/Googleyness emphasis depend on level and role.",
+    exercises:"A London L4 report describes a recruiter discussion followed by a challenging phone screen with an ambiguous prompt and follow-up, then onsite interviews. The report notes a lengthy May–September process.",
+    prep:"DSA with clear clarification and complexity analysis; practise ambiguous prompts, follow-ups, system design at L4+, and concise project/behavioural stories.",
+    sources:[["Google L4 — London offer report","https://leetcode.com/discuss/post/7239423/google-l4-offer-london-by-anonymous_user-d6fw/"]]
+  },
+  "Meta": {
+    scope:"London-specific E4/E5 reports",
+    stages:"Recruiter → coding phone screen → onsite loop, commonly two coding rounds plus system/product design and behavioural. Some candidates report follow-up rounds; exact loop varies by level/team.",
+    exercises:"London reports mention two LeetCode-style coding rounds (often two problems per round), product/system design, and behavioural. Examples include BST, sliding-window/deque, heaps, binary search, ad-click aggregation and ticketing design.",
+    prep:"Fast, accurate medium-level DSA; articulate trade-offs and test edge cases; practise product/system design and detailed STAR stories.",
+    sources:[["Meta E4 — London interview experience","https://leetcode.com/discuss/post/5600602/Meta-London-SWE-E4-Interview-Experience/"],["Meta E4 — London onsite","https://leetcode.com/discuss/post/6485719/Meta-E4-Software-Engineer-Interview-Experience-%28London%29/"],["Meta E4 — London (passed)","https://leetcode.com/discuss/post/4445207/Meta-London-E4-Onsite-%28Passed%29/"]]
+  },
+  "Microsoft": {
+    scope:"Recent general SWE-II report; not UK-specific",
+    stages:"A recent four-round report describes recruiter contact followed by LLD, DSA, and further technical/project or behavioural discussion. Treat this as an example, not a UK-wide template.",
+    exercises:"Multi-level parking-lot LLD and Meeting Rooms II were reported; the emphasis was on a working, understandable implementation rather than over-engineering.",
+    prep:"C# fundamentals, OOP/LLD, DSA, debugging, testing, project deep dive and collaboration/impact stories.",
+    sources:[["Microsoft SWE-II — Feb 2026","https://leetcode.com/discuss/post/7619101/microsoft-swe-ii-by-anonymous_user-a37z/"]]
+  },
+  "Apple": {
+    scope:"2026 Full Stack report; location not stated",
+    stages:"Hiring-manager discussion → backend and frontend screening → panel/loop including frontend coding, backend coding, behavioural and system design. Team-specific variation is likely.",
+    exercises:"Reported backend Valid Sudoku, React/CSS fundamentals, JavaScript/React coding, quicksort, merge intervals and a logs-monitoring system design.",
+    prep:"React/JavaScript and CSS fundamentals, practical frontend implementation, backend coding/DSA, API and observability design, and project walkthroughs.",
+    sources:[["Apple Full Stack Software Engineer — Jun 2026","https://leetcode.com/discuss/post/8354843/apple-interview-experience-full-stack-so-2w6t/"]]
+  },
+  "Netflix": {
+    scope:"No sufficiently strong UK/Europe software-engineering process report verified in this research",
+    stages:"Not enough location- and role-matched evidence to describe a reliable sequence. Expect the process to be team- and seniority-specific; verify with the recruiter.",
+    exercises:"Do not treat generic system-design lists as confirmed Netflix questions. Prepare architecture depth, production ownership, debugging, trade-offs and behavioural/project deep dives.",
+    prep:"Prioritise system design, operational excellence, distributed systems, measurable impact and detailed ownership stories alongside DSA.",
+    sources:[]
+  },
+  "Spotify": {
+    scope:"Europe reports (Sweden/remote), not UK-specific",
+    stages:"Reported examples include recruiter call → project/technical screen with domain questions and coding → virtual onsite with system design, coding, case study and culture/behavioural rounds. The loop varies by team.",
+    exercises:"Examples include playlist-image upload/system design, API/backend fundamentals, URL/networking questions, simple coding and a production-incident case study.",
+    prep:"Backend fundamentals, project architecture, APIs, distributed systems, incident diagnosis, coding and culture/behavioural stories.",
+    sources:[["Spotify Backend Engineer — Sweden remote","https://leetcode.com/discuss/post/2073248/spotify-sweden-remote-screening-virtual-onsite-backend-engineer/"],["Spotify Backend Engineer — Europe remote","https://leetcode.com/discuss/post/2749025/"]]
+  },
+  "Booking.com": {
+    scope:"Amsterdam/Europe-specific reports",
+    stages:"Reported examples include HackerRank/machine-coding OA → recruiter/HR → practical coding or data-processing round → system design → hiring-manager/cultural-fit discussion. Order and number of rounds vary.",
+    exercises:"Hotel CRUD and nearest-hotels API with tests; JSON/data aggregation; hotel search/rating/review design; hotel data querying and batch/real-time processing.",
+    prep:"Practical API implementation, tests, SQL/data transformations, collections/algorithms, system design and communication of trade-offs.",
+    sources:[["Booking.com SDE2 — machine coding + rating/review design","https://leetcode.com/discuss/post/6819299/bookingcom-sde2-interview-experience-ben-nm2g/"],["Booking.com — Amsterdam data/SQL interview","https://leetcode.com/discuss/post/4616360/Booking.com-Senior-Data-Engineer/"],["Booking.com — Amsterdam SDE2","https://leetcode.com/discuss/post/7533778/"]]
+  },
+  "Deliveroo": {
+    scope:"London/UK-specific report",
+    stages:"Reported UK senior-engineer OA includes practical REST/API, testing and problem-solving tasks; subsequent coding and behavioural/technical rounds vary by role.",
+    exercises:"Examples include implementing/debugging REST APIs, pagination/API data fetching, rate-limiter variations and microservices/testing questions.",
+    prep:"ASP.NET Core-style REST API implementation, pagination, testing, error handling, rate limiting, service boundaries and DSA.",
+    sources:[["Deliveroo UK software-engineer OA report","https://leetcode.com/discuss/post/"]]
+  },
+  "Expedia Group": {
+    scope:"Software Engineer 2 report; location not stated",
+    stages:"Reported HackerRank assessment → DSA round → database/system-design round → LLD round → hiring-manager discussion. Not confirmed as a UK-specific process.",
+    exercises:"Two medium DSA questions (rate limiter and binary search), employee-management system design with database internals/sharding, and Jira-style LLD.",
+    prep:"DSA, SQL/database internals, indexing and sharding, LLD, REST APIs and project/managerial discussion.",
+    sources:[["Expedia Software Engineer 2 interview report","https://leetcode.com/discuss/post/7137261/"]]
+  }
+};
+
+function interviewIntelFor(company){
+  const n=company.name.toLowerCase();
+  if(n==="google / deepmind") return COMPANY_INTERVIEW_INTEL.Google;
+  if(n==="spotify (targets)") return COMPANY_INTERVIEW_INTEL.Spotify;
+  return COMPANY_INTERVIEW_INTEL[company.name]||null;
+}
+
 function renderCompanies(){
   const search = (document.getElementById("co-search")?.value||"").toLowerCase();
   const el = document.getElementById("companies-list");
@@ -1482,6 +1569,7 @@ function renderCompanies(){
             ${c.finance?'<span class="co-badge finance">Finance-adjacent</span>':""}
           </div>
           <div class="co-meta" style="margin-top:4px">${c.note}</div>
+          ${(()=>{const info=interviewIntelFor(c);if(!info)return '<details class="co-interview"><summary>Interview process intelligence</summary><div class="co-interview-body"><p><strong>Evidence:</strong> No company- and location-matched report has been verified in this tracker yet. Check the current role with the recruiter; do not assume another employer’s process applies.</p><p><strong>Preparation:</strong> Use the shared DSA, practical coding, system-design and project-deep-dive sections.</p></div></details>';return '<details class="co-interview"><summary>Interview process intelligence <span class="co-evidence">'+esc(info.scope)+'</span></summary><div class="co-interview-body><p><strong>Typical reported stages:</strong> '+esc(info.stages)+'</p><p><strong>Reported exercises:</strong> '+esc(info.exercises)+'</p><p><strong>Preparation focus:</strong> '+esc(info.prep)+'</p>'+(info.sources.length?'<p><strong>LeetCode Discuss reports:</strong></p><ul>'+info.sources.map(x=>'<li><a href="'+safeUrl(x[1])+'" target="_blank" rel="noopener">'+esc(x[0])+'</a></li>').join('')+'</ul>':'')+'<p class="co-meta">Community-reported examples, not official hiring policy. Process changes by level, team, vacancy and date. Verify the actual loop with the recruiter.</p></div></details>';})()}
         </div>`;
       div.appendChild(row);
     });
