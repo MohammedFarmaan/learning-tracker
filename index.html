@@ -248,7 +248,7 @@ a{color:inherit;text-decoration:none}
     <div class="ntab" data-page="jobs">Job pipeline</div>
     <div class="ntab" data-page="coding">Practical coding</div>
   </div>
-  <div class="sync-status"><button class="auth-btn" id="auth-btn" onclick="startGitHubLogin()">Sign in</button><button class="btn-ghost" style="padding:4px 7px;font-size:11px" onclick="exportBackup()" title="Export backup">Export</button><label class="btn-ghost" style="padding:4px 7px;font-size:11px;cursor:pointer" title="Import backup">Import<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=''"></label>
+  <div class="sync-status"><button class="auth-btn" id="auth-btn" onclick="startGitHubLogin()">Sign in</button><button class="auth-btn" id="sync-now-btn" onclick="syncNow()" title="Sync progress with GitHub">Sync now</button><button class="btn-ghost" style="padding:4px 7px;font-size:11px" onclick="exportBackup()" title="Export backup">Export</button><label class="btn-ghost" style="padding:4px 7px;font-size:11px;cursor:pointer" title="Import backup">Import<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=''"></label>
     <div class="sync-dot" id="sync-dot"></div>
     <span id="sync-label">loading</span>
   </div>
@@ -911,7 +911,10 @@ function mergeProgress(local, remote){
   ["roadmap","lc","sd","amina","companies","coding"].forEach(key => {
     merged[key] = { ...(remote?.[key] || {}), ...(local?.[key] || {}) };
   });
-  merged.jobs = (local?.jobs?.length ? local.jobs : (remote?.jobs || []));
+  const jobs = new Map();
+  (remote?.jobs || []).forEach(job => jobs.set(job.id || JSON.stringify(job), job));
+  (local?.jobs || []).forEach(job => jobs.set(job.id || JSON.stringify(job), job));
+  merged.jobs = [...jobs.values()];
   return merged;
 }
 async function loadFromCloud(){
@@ -948,7 +951,7 @@ async function loadFromCloud(){
     setSyncStatus("error", "Sync issue: " + e.message);
   }
 }
-async function saveToCloud(){
+async function saveToCloud(retryOnConflict = true){
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch(e) {
@@ -961,7 +964,7 @@ async function saveToCloud(){
     return;
   }
   if (!progressSha) {
-    setSyncStatus("error", "Sign in again to load cloud progress");
+    setSyncStatus("error", "Cloud version not loaded — use Sync now");
     return;
   }
   try {
@@ -975,7 +978,49 @@ async function saveToCloud(){
     dirty = false;
     setSyncStatus("synced", "GitHub synced");
   } catch(e) {
+    if (retryOnConflict && /409|does not match|sha/i.test(e.message)) {
+      try {
+        setSyncStatus("syncing", "merging newer GitHub changes…");
+        const latest = await apiRequest("/api/progress");
+        const merged = mergeProgress(state, latest.progress);
+        progressSha = latest.sha;
+        state = merged;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        await saveToCloud(false);
+        return;
+      } catch(retryError) {
+        setSyncStatus("error", "Sync conflict — export a backup and try Sync now");
+        return;
+      }
+    }
     setSyncStatus("error", "GitHub save failed — " + e.message);
+  }
+}
+async function syncNow(){
+  const button = document.getElementById("sync-now-btn");
+  if (button) button.disabled = true;
+  try {
+    if (!sessionToken) {
+      setSyncStatus("error", "Sign in to sync with GitHub");
+      return;
+    }
+    const me = await apiRequest("/api/auth/me");
+    setAuthButton("Sign out (" + me.login + ")", logoutGitHub);
+    const latest = await apiRequest("/api/progress");
+    const merged = mergeProgress(state, latest.progress);
+    const changed = JSON.stringify(merged) !== JSON.stringify(latest.progress);
+    state = merged;
+    progressSha = latest.sha;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (changed) await saveToCloud(false);
+    else {
+      dirty = false;
+      setSyncStatus("synced", "GitHub synced");
+    }
+  } catch(e) {
+    setSyncStatus("error", "Sync failed — " + e.message);
+  } finally {
+    if (button) button.disabled = false;
   }
 }
 function scheduleSave(){
