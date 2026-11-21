@@ -233,6 +233,20 @@ a{color:inherit;text-decoration:none}
 .coding-card{display:flex;gap:10px;align-items:flex-start}.coding-card input{margin-top:3px}.coding-card p{font-size:12px;color:var(--text2);line-height:1.55;margin-top:4px}
 @media(max-width:640px){.job-grid{grid-template-columns:1fr}.job-grid .wide{grid-column:auto}.job-card-head{display:block}.nav{padding:0 .5rem}.nav-logo{margin-right:.6rem}}
 
+
+.live-jobs{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin:14px 0}
+.live-jobs-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.live-jobs-head h3{font-size:15px;margin-bottom:4px}
+.live-jobs-head p,.live-jobs-meta{font-size:12px;color:var(--text2);line-height:1.5}
+.live-jobs-meta{display:flex;justify-content:space-between;gap:8px;margin:10px 0}
+.live-search-links{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.live-job-card{border-top:1px solid var(--border);padding:11px 0}
+.live-job-card h4{font-size:13px;margin-bottom:3px}
+.live-job-card p{font-size:12px;color:var(--text2);line-height:1.5;margin-top:4px}
+.live-job-card a{color:var(--blue-text);text-decoration:underline;text-underline-offset:2px}
+.live-job-tags{font-size:11px;color:var(--text3);margin-top:5px}
+@media(max-width:640px){.live-jobs-head{display:block}.live-jobs-head button{margin-top:9px}.live-jobs-meta{display:block}}
+
 </style>
 </head>
 <body>
@@ -420,6 +434,18 @@ a{color:inherit;text-decoration:none}
 <div class="page" id="page-jobs">
   <div class="page-header"><div class="page-header-row"><div><div class="page-title">UK job pipeline</div><div class="page-sub">Apply now · £70k+ base target · record the exact employing entity and vacancy-level sponsorship</div></div><button class="btn-ghost" onclick="clearJobs()">Clear pipeline</button></div></div>
   <div class="co-caution">A sponsor licence is employer-level only. For every role, record whether the advert explicitly confirms sponsorship or whether you still need recruiter confirmation. Salary means annual base salary, not total compensation.</div>
+  <section class="live-jobs">
+    <div class="live-jobs-head"><div><h3>Live UK software vacancies</h3><p>Auto-refreshes when this page opens. Open-feed coverage is incomplete, so use the live sponsor/job-board searches alongside it.</p></div><button class="btn-primary" id="refresh-live-jobs" onclick="refreshLiveJobs(true)">↻ Refresh jobs</button></div>
+    <div class="live-jobs-meta"><span id="live-jobs-status">Loading latest listings…</span><span id="live-jobs-updated"></span></div>
+    <div class="live-search-links">
+      <a class="link-pill" href="https://www.skilledjobs.com/visa-sponsorship-jobs/2134-programmers-and-software-development-professionals" target="_blank" rel="noopener">Latest software jobs at licensed sponsors ↗</a>
+      <a class="link-pill" href="https://uk-sponsors.getborderless.co.uk/visa-sponsorship-jobs/software-engineer" target="_blank" rel="noopener">Software engineer sponsor vacancies ↗</a>
+      <a class="link-pill" href="https://www.linkedin.com/jobs/search/?keywords=.NET%20Software%20Engineer&location=United%20Kingdom" target="_blank" rel="noopener">LinkedIn UK .NET roles ↗</a>
+      <a class="link-pill" href="https://www.linkedin.com/jobs/search/?keywords=Full%20Stack%20Engineer%20React&location=United%20Kingdom" target="_blank" rel="noopener">LinkedIn UK full-stack roles ↗</a>
+    </div>
+    <div class="co-caution">Sponsorship warning: an employer holding a sponsor licence does not mean a specific vacancy offers sponsorship. Confirm vacancy-level sponsorship, eligible occupation and salary before applying. The live API feed below is a discovery aid, not a complete UK vacancy index.</div>
+    <div id="live-jobs-list"><p class="job-meta">Fetching current listings…</p></div>
+  </section>
   <div class="stats"><div class="stat"><div class="stat-num" id="job-total">0</div><div class="stat-label">Tracked roles</div></div><div class="stat"><div class="stat-num" id="job-active">0</div><div class="stat-label">In progress</div></div><div class="stat"><div class="stat-num" id="job-offers">0</div><div class="stat-label">Offers</div></div></div>
   <div class="job-form">
     <div class="job-grid">
@@ -709,6 +735,30 @@ const COMPANIES = {
     {id:3,n:"Longest Substring Without Repeating Chars",d:"medium",s:"longest-substring-without-repeating-characters"},
     {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
     {id:239,n:"Sliding Window Maximum",d:"hard",s:"sliding-window-maximum"}
+  ]
+  ,"Deliveroo":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:3,n:"Longest Substring Without Repeating Characters",d:"medium",s:"longest-substring-without-repeating-characters"},
+    {id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},{id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},{id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},
+    {id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},{id:206,n:"Reverse Linked List",d:"easy",s:"reverse-linked-list"},
+    {id:238,n:"Product of Array Except Self",d:"medium",s:"product-of-array-except-self"},{id:347,n:"Top K Frequent Elements",d:"medium",s:"top-k-frequent-elements"},
+    {id:424,n:"Longest Repeating Character Replacement",d:"medium",s:"longest-repeating-character-replacement"},{id:560,n:"Subarray Sum Equals K",d:"medium",s:"subarray-sum-equals-k"},
+    {id:739,n:"Daily Temperatures",d:"medium",s:"daily-temperatures"},{id:994,n:"Rotting Oranges",d:"medium",s:"rotting-oranges"},
+    {id:102,b:"",n:"Binary Tree Level Order Traversal",d:"medium",s:"binary-tree-level-order-traversal"},{id:133,n:"Clone Graph",d:"medium",s:"clone-graph"},
+    {id:155,n:"Min Stack",d:"medium",s:"min-stack"},{id:215,n:"Kth Largest Element in an Array",d:"medium",s:"kth-largest-element-in-an-array"},
+    {id:417,n:"Pacific Atlantic Water Flow",d:"medium",s:"pacific-atlantic-water-flow"},{id:981,n:"Time Based Key-Value Store",d:"medium",s:"time-based-key-value-store"}
+  ],
+  "Expedia Group":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:15,n:"3Sum",d:"medium",s:"3sum"},
+    {id:33,n:"Search in Rotated Sorted Array",d:"medium",s:"search-in-rotated-sorted-array"},{id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams"},
+    {id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},{id:57,n:"Insert Interval",d:"medium",s:"insert-interval"},
+    {id:76,n:"Minimum Window Substring",d:"hard",s:"minimum-window-substring"},{id:98,n:"Validate Binary Search Tree",d:"medium",s:"validate-binary-search-tree"},
+    {id:102,n:"Binary Tree Level Order Traversal",d:"medium",s:"binary-tree-level-order-traversal"},{id:127,n:"Word Ladder",d:"hard",s:"word-ladder"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},{id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},{id:215,n:"Kth Largest Element in an Array",d:"medium",s:"kth-largest-element-in-an-array"},
+    {id:239,n:"Sliding Window Maximum",d:"hard",s:"sliding-window-maximum"},{id:253,n:"Meeting Rooms II",d:"medium",s:"meeting-rooms-ii"},
+    {id:295,n:"Find Median from Data Stream",d:"hard",s:"find-median-from-data-stream"},{id:322,n:"Coin Change",d:"medium",s:"coin-change"},
+    {id:347,n:"Top K Frequent Elements",d:"medium",s:"top-k-frequent-elements"},{id:787,n:"Cheapest Flights Within K Stops",d:"medium",s:"cheapest-flights-within-k-stops"}
   ]
 };
 
@@ -1038,6 +1088,7 @@ document.querySelectorAll(".ntab").forEach(t => {
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
     this.classList.add("active");
     document.getElementById("page-"+this.dataset.page).classList.add("active");
+    if (this.dataset.page === "jobs") refreshLiveJobs(false);
   });
 });
 
@@ -1459,6 +1510,60 @@ function renderCoding(){
  root.querySelectorAll('[data-coding-key]').forEach(cb=>cb.addEventListener('change',()=>{state.coding=state.coding||{};state.coding[cb.dataset.codingKey]=cb.checked;scheduleSave();renderCoding()}));
  document.getElementById('coding-done').textContent=done;document.getElementById('coding-total').textContent=total;document.getElementById('coding-pct').textContent=Math.round(done/total*100)+'%';
 }
+
+let liveJobsLastFetch = 0;
+let liveJobsInFlight = false;
+async function refreshLiveJobs(force){
+  const root=document.getElementById("live-jobs-list");
+  const status=document.getElementById("live-jobs-status");
+  const updated=document.getElementById("live-jobs-updated");
+  const button=document.getElementById("refresh-live-jobs");
+  if(!root||liveJobsInFlight)return;
+  if(!force&&Date.now()-liveJobsLastFetch<5*60*1000)return;
+  liveJobsInFlight=true;
+  if(button)button.disabled=true;
+  status.textContent="Refreshing public job listings…";
+  try{
+    const pages=await Promise.all([1,2,3].map(async page=>{
+      const response=await fetch("https://www.arbeitnow.com/api/job-board-api?page="+page,{headers:{Accept:"application/json"}});
+      if(!response.ok)throw new Error("Job feed returned "+response.status);
+      return response.json();
+    }));
+    const all=pages.flatMap(payload=>Array.isArray(payload.data)?payload.data:[]);
+    const uk=all.filter(job=>{
+      const loc=String(job.location||"").toLowerCase();
+      const title=String(job.title||"").toLowerCase();
+      const desc=String(job.description||"").toLowerCase();
+      const isUK=/united kingdom|\buk\b|england|scotland|wales|northern ireland|london|manchester|edinburgh|cambridge|bristol|leeds|birmingham|nottingham|glasgow|oxford|reading|remote - uk/.test(loc);
+      const relevant=/software engineer|software developer|\.net|c#|backend engineer|back-end engineer|full.?stack|web developer/.test(title+" "+desc.slice(0,1200));
+      const senior=/principal|staff engineer|engineering manager|director|head of /.test(title);
+      return isUK&&relevant&&!senior;
+    });
+    const unique=[...new Map(uk.map(job=>[job.url||job.slug,job])).values()].slice(0,30);
+    liveJobsLastFetch=Date.now();
+    updated.textContent="Updated "+new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+    status.textContent=unique.length+" matching UK listings from public feed";
+    if(!unique.length){
+      root.innerHTML='<p class="job-meta">No matching UK roles were returned by the open feed this time. Use the live sponsor and LinkedIn searches above — those search pages update independently.</p>';
+      return;
+    }
+    root.innerHTML=unique.map(job=>{
+      const title=esc(job.title||"Software role"),company=esc(job.company_name||"Company not listed"),location=esc(job.location||"UK location not specified");
+      const date=job.created_at?new Date(Number(job.created_at)*1000).toLocaleDateString("en-GB"):"Date not provided";
+      const salary=job.salary?esc(job.salary):"Salary not listed";
+      const tags=Array.isArray(job.tags)?job.tags.map(esc).join(" · "):"";
+      const sponsor=/visa sponsorship|skilled worker sponsorship|sponsor visa/i.test((job.description||"")+" "+(job.tags||[]).join(" "))?"Advert mentions sponsorship — verify details":"Sponsorship not confirmed";
+      return '<article class="live-job-card"><h4>'+title+'</h4><p><strong>'+company+'</strong> · '+location+' · '+date+'</p><p>'+salary+' · '+sponsor+'</p>'+(tags?'<div class="live-job-tags">'+tags+'</div>':"")+'<p><a href="'+safeUrl(job.url||"")+'" target="_blank" rel="noopener">Open original vacancy ↗</a></p></article>';
+    }).join("");
+  }catch(error){
+    status.textContent="Live feed unavailable";
+    root.innerHTML='<p class="job-meta">Could not load the open job feed: '+esc(error.message)+'. The sponsor and LinkedIn search links above remain available.</p>';
+  }finally{
+    liveJobsInFlight=false;
+    if(button)button.disabled=false;
+  }
+}
+
 function readJobForm(){return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),company:val('job-company'),title:val('job-title'),location:val('job-location'),entity:val('job-entity'),salary:val('job-salary'),experience:val('job-exp'),sponsor:val('job-sponsor'),status:val('job-status'),url:val('job-url'),notes:val('job-notes'),created:new Date().toISOString()}}
 function val(id){return document.getElementById(id)?.value?.trim()||''}
 function addJob(){const j=readJobForm();if(!j.company||!j.title){alert('Please enter at least company and role title.');return}state.jobs=state.jobs||[];state.jobs.unshift(j);['job-company','job-title','job-location','job-entity','job-salary','job-exp','job-url','job-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('job-sponsor').value='unknown';document.getElementById('job-status').value='Saved';scheduleSave();renderJobs()}
@@ -1505,6 +1610,7 @@ async function init(){
   renderCompanies();
   renderJobs();
   renderCoding();
+  refreshLiveJobs(false);
 }
 
 init();
