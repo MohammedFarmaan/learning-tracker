@@ -1088,7 +1088,7 @@ document.querySelectorAll(".ntab").forEach(t => {
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
     this.classList.add("active");
     document.getElementById("page-"+this.dataset.page).classList.add("active");
-    if (this.dataset.page === "jobs") refreshLiveJobs(false);
+    if (this.dataset.page === "jobs") refreshLiveJobs(true);
   });
 });
 
