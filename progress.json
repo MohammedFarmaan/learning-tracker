@@ -4,7 +4,8 @@
   },
   "lc": {
     "two-sum": true,
-    "merge-two-sorted-lists": true
+    "merge-two-sorted-lists": true,
+    "most-common-word": true
   },
   "sd": {},
   "amina": {},
