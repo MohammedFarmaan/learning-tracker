@@ -3,7 +3,8 @@
     "p1_0": false
   },
   "lc": {
-    "two-sum": true
+    "two-sum": true,
+    "merge-two-sorted-lists": true
   },
   "sd": {},
   "amina": {},
