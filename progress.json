@@ -5,7 +5,8 @@
   "lc": {
     "two-sum": true,
     "merge-two-sorted-lists": true,
-    "most-common-word": true
+    "most-common-word": true,
+    "valid-parentheses": true
   },
   "sd": {},
   "amina": {},
