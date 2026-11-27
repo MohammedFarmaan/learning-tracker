@@ -13,5 +13,14 @@
   "companies": {},
   "jobs": [],
   "coding": {},
-  "focus": {}
+  "focus": {
+    "checks": {},
+    "days": {
+      "2026-11-27": {
+        "noai": false
+      }
+    },
+    "notes": [],
+    "sessions": 0
+  }
 }
