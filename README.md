@@ -10,6 +10,7 @@ A personal software-engineering and UK job-search preparation tracker.
 - UK company shortlist with sponsorship checks clearly marked for re-verification.
 - Job application pipeline.
 - Practical C# and engineering exercises.
+- Deep Focus & Direct Relocation tab (anti-procrastination daily check-in, Pomodoro timer, Levels.fyi UK/NL/DE benchmarks, and deep engineering mastery gates).
 
 ## Progress and backups
 Progress is stored in this browser using local storage. Use the export/import controls to back up progress and move it between devices. This static site does not automatically synchronise progress across browsers.

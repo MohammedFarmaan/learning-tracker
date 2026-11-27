@@ -254,6 +254,31 @@ a{color:inherit;text-decoration:none}
 .live-job-tags{font-size:11px;color:var(--text3);margin-top:5px}
 @media(max-width:640px){.live-jobs-head{display:block}.live-jobs-head button{margin-top:9px}.live-jobs-meta{display:block}}
 
+/* DEEP FOCUS TAB */
+.focus-hero{background:linear-gradient(135deg,#0c2a4a 0%,#134e4a 100%);border-radius:14px;padding:1.25rem;margin-bottom:1rem;color:#fff}
+.focus-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.focus-hero-title{font-size:19px;font-weight:600;margin-bottom:4px}
+.focus-hero-sub{font-size:12px;opacity:.85;line-height:1.5;max-width:460px}
+.focus-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:.75rem}
+.focus-badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff}
+.timer-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.875rem;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.timer-clock{font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.timer-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.timer-btn{font-size:12px;font-weight:500;padding:6px 11px;border-radius:7px;border:0.5px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer}
+.timer-btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.streak-grid{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:4px;margin-top:.6rem}
+.streak-cell{height:22px;border-radius:4px;background:var(--surface2);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3)}
+.streak-cell.hit{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+.bench-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:.5rem}
+.bench-table th,.bench-table td{text-align:left;padding:7px 8px;border-bottom:0.5px solid var(--border);vertical-align:top}
+.bench-table th{color:var(--text3);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.focus-note-row{display:flex;gap:8px;margin-top:.5rem}
+.focus-note-row input{flex:1;font-size:13px;padding:8px 10px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none}
+.focus-note-item{font-size:12px;padding:7px 0;border-bottom:0.5px solid var(--border);color:var(--text2);line-height:1.5}
+.focus-note-item:last-child{border-bottom:none}
+.focus-note-date{font-size:11px;color:var(--text3);margin-right:6px;font-family:monospace}
+@media(max-width:540px){.streak-grid{grid-template-columns:repeat(7,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -268,6 +293,7 @@ a{color:inherit;text-decoration:none}
     <div class="ntab" data-page="companies">Companies</div>
     <div class="ntab" data-page="jobs">Job pipeline</div>
     <div class="ntab" data-page="coding">Practical coding</div>
+    <div class="ntab" data-page="focus">🎯 Deep Focus</div>
   </div>
   <div class="sync-status"><button class="auth-btn" id="auth-btn" onclick="startGitHubLogin()">Sign in</button><button class="auth-btn" id="sync-now-btn" onclick="syncNow()" title="Sync progress with GitHub">Sync now</button><button class="btn-ghost" style="padding:4px 7px;font-size:11px" onclick="exportBackup()" title="Export backup">Export</button><label class="btn-ghost" style="padding:4px 7px;font-size:11px;cursor:pointer" title="Import backup">Import<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=''"></label>
     <div class="sync-dot" id="sync-dot"></div>
@@ -500,6 +526,55 @@ a{color:inherit;text-decoration:none}
     <div class="stat"><div class="stat-num" id="sd-pct">0%</div><div class="stat-label">Complete</div></div>
   </div>
   <div id="sd-content"></div>
+</div>
+
+<!-- ═══════════════ DEEP FOCUS PAGE ═══════════════ -->
+<div class="page" id="page-focus">
+  <div class="page-header">
+    <div class="page-header-row">
+      <div>
+        <div class="page-title">Deep Focus &amp; Direct Relocation</div>
+        <div class="page-sub">Anti-procrastination daily engine · AI-free mastery · UK / Netherlands / Germany benchmarks</div>
+      </div>
+      <button class="btn-ghost" onclick="resetSection('focus')">Reset</button>
+    </div>
+  </div>
+
+  <div class="focus-hero">
+    <div class="focus-hero-top">
+      <div>
+        <div class="focus-hero-title">Direct Relocation Mode (UK · NL · DE)</div>
+        <div class="focus-hero-sub">Do not wait for perfection. Every day: 1 timed DSA without AI, 1 deep systems/internals block, and 1 tangible output. Halal-only product companies.</div>
+      </div>
+    </div>
+    <div class="focus-badges">
+      <span class="focus-badge">UK &lt;26 New Entrant: £38,290+ (until Jan 1, 2028)</span>
+      <span class="focus-badge">NL &lt;30 Kennismigrant: €4,357/mo</span>
+      <span class="focus-badge">DE EU Blue Card IT: €45,934/yr</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="focus-streak">0d</div><div class="stat-label">Streak</div></div>
+    <div class="stat"><div class="stat-num" id="focus-sessions">0</div><div class="stat-label">Deep sessions</div></div>
+    <div class="stat"><div class="stat-num" id="focus-pct">0%</div><div class="stat-label">Mastery gate</div></div>
+  </div>
+
+  <div class="timer-card">
+    <div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:2px" id="timer-mode-label">Deep Work Timer · No AI Autocomplete</div>
+      <div class="timer-clock" id="focus-timer-display">50:00</div>
+    </div>
+    <div class="timer-controls">
+      <button class="timer-btn" onclick="setFocusTimer(25)">25m</button>
+      <button class="timer-btn" onclick="setFocusTimer(50)">50m</button>
+      <button class="timer-btn" onclick="setFocusTimer(90)">90m</button>
+      <button class="timer-btn primary" id="focus-timer-toggle" onclick="toggleFocusTimer()">Start</button>
+      <button class="timer-btn" onclick="resetFocusTimer()">Reset</button>
+    </div>
+  </div>
+
+  <div id="focus-content"></div>
 </div>
 
 <script>
@@ -955,7 +1030,7 @@ const AMINA_MILESTONES = [
 const STORAGE_KEY = "uk_prep_tracker_v1";
 const API_BASE = "https://learning-tracker-api-five.vercel.app";
 const SESSION_KEY = "uk_prep_github_session";
-let state = { roadmap:{}, lc:{}, sd:{}, amina:{}, companies:{}, jobs:[], coding:{} };
+let state = { roadmap:{}, lc:{}, sd:{}, amina:{}, companies:{}, jobs:[], coding:{}, focus:{} };
 let syncTimer = null;
 let dirty = false;
 let progressSha = null;
@@ -994,8 +1069,8 @@ function logoutGitHub(){
   setSyncStatus("synced", "saved on this device");
 }
 function mergeProgress(local, remote){
-  const merged = { roadmap:{}, lc:{}, sd:{}, amina:{}, companies:{}, jobs:[], coding:{}, ...(remote || {}) };
-  ["roadmap","lc","sd","amina","companies","coding"].forEach(key => {
+  const merged = { roadmap:{}, lc:{}, sd:{}, amina:{}, companies:{}, jobs:[], coding:{}, focus:{}, ...(remote || {}) };
+  ["roadmap","lc","sd","amina","companies","coding","focus"].forEach(key => {
     merged[key] = { ...(remote?.[key] || {}), ...(local?.[key] || {}) };
   });
   const jobs = new Map();
@@ -1693,8 +1768,8 @@ function cycleJob(id){const seq=['Saved','Researching','Applied','Recruiter scre
 function deleteJob(id){if(!confirm('Delete this tracked role?'))return;state.jobs=(state.jobs||[]).filter(x=>x.id!==id);scheduleSave();renderJobs()}
 function clearJobs(){if(!confirm('Clear the entire job pipeline?'))return;state.jobs=[];scheduleSave();renderJobs()}
 function exportBackup(){const blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),state},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='uk-prep-tracker-backup.json';a.click();URL.revokeObjectURL(a.href)}
-function importBackup(file){const reader=new FileReader();reader.onload=()=>{try{const obj=JSON.parse(reader.result);const incoming=obj.state||obj;if(!incoming||typeof incoming!=='object')throw Error('Invalid backup');if(!confirm('Import this backup and replace current tracker progress?'))return;state={roadmap:{},lc:{},sd:{},amina:{},companies:{},jobs:[],coding:{},...incoming};scheduleSave();initRender();alert('Backup imported.')}catch(e){alert('Could not import backup: '+e.message)}};reader.readAsText(file)}
-function initRender(){renderRoadmap();renderCoChips();renderDiffChips();renderLC();renderSD();renderAmina();renderCoCountryChips();renderCoPriChips();renderCompanies();renderJobs();renderCoding()}
+function importBackup(file){const reader=new FileReader();reader.onload=()=>{try{const obj=JSON.parse(reader.result);const incoming=obj.state||obj;if(!incoming||typeof incoming!=='object')throw Error('Invalid backup');if(!confirm('Import this backup and replace current tracker progress?'))return;state={roadmap:{},lc:{},sd:{},amina:{},companies:{},jobs:[],coding:{},focus:{},...incoming};scheduleSave();initRender();alert('Backup imported.')}catch(e){alert('Could not import backup: '+e.message)}};reader.readAsText(file)}
+function initRender(){renderRoadmap();renderCoChips();renderDiffChips();renderLC();renderSD();renderAmina();renderCoCountryChips();renderCoPriChips();renderCompanies();renderJobs();renderCoding();renderFocus()}
 
 // ══════════════════════════════════════════════
 // RESET
@@ -1709,7 +1784,273 @@ function resetSection(sec){
   if(sec==="companies") renderCompanies();
   if(sec==="coding") renderCoding();
   if(sec==="jobs") renderJobs();
+  if(sec==="focus") renderFocus();
   scheduleSave();
+}
+
+// ══════════════════════════════════════════════
+// DEEP FOCUS & DIRECT RELOCATION
+// ══════════════════════════════════════════════
+const FOCUS_DAILY_SLOTS = [
+  { id:"dsa", label:"DSA Block (60–90m): 1–2 timed problems coded from scratch with ZERO AI autocomplete" },
+  { id:"deep", label:"Deep Internals Block (45–60m): .NET / SQL EXPLAIN / Redis / Kafka / System Design" },
+  { id:"out", label:"Tangible Output: Write tests/ADR, solve a real bug, or send 5 targeted UK/NL/DE applications" },
+  { id:"noai", label:"AI-Free Commitment: I debugged and reasoned through errors myself today" }
+];
+
+const FOCUS_BENCHMARKS = [
+  { market:"🇬🇧 London, UK", median:"$151,707", levels:"Microsoft L59 $76k / L61 $117.4k · Expedia J $73.8k / K $100.6k · Amazon L4 $105.6k", visa:"£38,290 (<26 New Entrant until Jan 1, 2028) · £54,700 Standard" },
+  { market:"🇳🇱 Amsterdam, NL", median:"$132,314", levels:"Booking.com E (Jr) $73k · F (SWE I) $100.9k · SWE II $153k", visa:"€4,357/mo base (<30 Kennismigrant, excl. 8% holiday)" },
+  { market:"🇩🇪 Berlin, DE", median:"$110,752", levels:"Zalando C4 $65k · C5 $62.7k · C6 (SWE) $91.5k", visa:"€45,934/yr (EU Blue Card IT — no sponsor licence needed)" }
+];
+
+const FOCUS_PILLARS = [
+  { id:"dotnet", title:"1. C# / .NET Internals & Production APIs", badge:"--blue-bg,--blue-text",
+    items:[
+      "Explain async/await state machine, Task vs ValueTask, and SynchronizationContext without notes",
+      "Explain DI lifetimes (Transient, Scoped, Singleton) and why captive dependencies cause memory leaks",
+      "Benchmark EF Core vs Dapper; identify and fix N+1 queries using AsNoTracking & split queries",
+      "Build custom ASP.NET middleware + RFC 7807 ProblemDetails global error handling",
+      "Write real integration tests using WebApplicationFactory + Testcontainers (PostgreSQL/SQL Server)",
+      "Add OpenTelemetry structured logging, correlation IDs, and health checks"
+    ]},
+  { id:"sql", title:"2. SQL & Database Internals (PostgreSQL / SQL Server)", badge:"--purple-bg,--purple-text",
+    items:[
+      "Explain B-tree index structure and why composite index column order matters",
+      "Read EXPLAIN ANALYZE / Execution Plans and eliminate full table scans on 1M+ row tables",
+      "Use covering indexes (INCLUDE) and partial indexes appropriately",
+      "Explain ACID isolation levels (Read Committed, Repeatable Read, Serializable) and phantom reads",
+      "Implement optimistic concurrency (RowVersion) and prevent SQL deadlocks under concurrent writes",
+      "Compare offset vs keyset/cursor pagination with exact SQL benchmarks"
+    ]},
+  { id:"dist", title:"3. Distributed Systems, Redis & Async Messaging", badge:"--amber-bg,--amber-text",
+    items:[
+      "Implement Redis cache-aside with TTL jitter and stampede/dogpile protection",
+      "Design idempotent POST/webhook APIs using Idempotency-Key + unique DB constraints",
+      "Implement the Transactional Outbox pattern with RabbitMQ or Kafka (at-least-once delivery)",
+      "Configure Dead-Letter Queues (DLQ), retry policies with exponential backoff + jitter",
+      "Draw & narrate 8 core system designs in 45 min (Rate Limiter, Booking, Job Queue, Notifications, Search)"
+    ]},
+  { id:"ts", title:"4. Strict TypeScript, React & Secondary EU Backend", badge:"--green-bg,--green-text",
+    items:[
+      "Write strict TypeScript (generics, discriminated unions, never/unknown, zero any)",
+      "Explain React reconciliation, memoization traps, and custom hooks cleanly",
+      "Write automated frontend tests with Vitest + React Testing Library",
+      "Build 1 clean REST service in secondary EU backend (Node.js/TypeScript OR Java Spring Boot)"
+    ]},
+  { id:"comm", title:"5. AI-Independent Debugging & Interview Execution", badge:"--blue-bg,--blue-text",
+    items:[
+      "Solve 75+ LeetCode Mediums timed (35m max) with zero AI and verbalized trade-offs",
+      "Debug a failing API/SQL bottleneck using logs, profiler, and stack trace without AI",
+      "Deliver crisp 2-minute STAR stories on Disprz integrations (Darwinbox, eCornell, Honda, BAGIC)",
+      "Pass 6+ live mock interviews (DSA, pairing, system design) before peak EU/UK loop"
+    ]}
+];
+
+let focusTimerSec = 50 * 60;
+let focusTimerDuration = 50;
+let focusTimerInterval = null;
+
+function ensureFocusState(){
+  if (!state.focus || typeof state.focus !== "object") state.focus = {};
+  if (!state.focus.checks) state.focus.checks = {};
+  if (!state.focus.days) state.focus.days = {};
+  if (!Array.isArray(state.focus.notes)) state.focus.notes = [];
+  if (typeof state.focus.sessions !== "number") state.focus.sessions = 0;
+  return state.focus;
+}
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function updateFocusTimerDisplay(){
+  const el = document.getElementById("focus-timer-display");
+  if (!el) return;
+  const m = Math.floor(focusTimerSec / 60);
+  const s = focusTimerSec % 60;
+  el.textContent = String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
+function setFocusTimer(mins){
+  clearInterval(focusTimerInterval);
+  focusTimerInterval = null;
+  focusTimerDuration = mins;
+  focusTimerSec = mins * 60;
+  const btn = document.getElementById("focus-timer-toggle");
+  if (btn) btn.textContent = "Start";
+  updateFocusTimerDisplay();
+}
+function toggleFocusTimer(){
+  const btn = document.getElementById("focus-timer-toggle");
+  if (focusTimerInterval) {
+    clearInterval(focusTimerInterval);
+    focusTimerInterval = null;
+    if (btn) btn.textContent = "Resume";
+    return;
+  }
+  if (btn) btn.textContent = "Pause";
+  focusTimerInterval = setInterval(() => {
+    if (focusTimerSec > 0) {
+      focusTimerSec--;
+      updateFocusTimerDisplay();
+    } else {
+      clearInterval(focusTimerInterval);
+      focusTimerInterval = null;
+      if (btn) btn.textContent = "Start";
+      const f = ensureFocusState();
+      f.sessions = (f.sessions || 0) + 1;
+      f.days[todayKey()] = f.days[todayKey()] || {};
+      f.days[todayKey()].sessionDone = true;
+      scheduleSave();
+      renderFocus();
+      alert("Deep Focus session complete! Log what you learned below.");
+    }
+  }, 1000);
+}
+function resetFocusTimer(){
+  setFocusTimer(focusTimerDuration);
+}
+function toggleDailySlot(slotId){
+  const f = ensureFocusState();
+  const k = todayKey();
+  if (!f.days[k]) f.days[k] = {};
+  f.days[k][slotId] = !f.days[k][slotId];
+  scheduleSave();
+  renderFocus();
+}
+function toggleFocusCheck(id){
+  const f = ensureFocusState();
+  f.checks[id] = !f.checks[id];
+  scheduleSave();
+  renderFocus();
+}
+function addFocusNote(){
+  const input = document.getElementById("focus-note-input");
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const f = ensureFocusState();
+  f.notes.unshift({ date: todayKey(), text });
+  if (f.notes.length > 40) f.notes = f.notes.slice(0, 40);
+  f.days[todayKey()] = f.days[todayKey()] || {};
+  f.days[todayKey()].note = true;
+  input.value = "";
+  scheduleSave();
+  renderFocus();
+}
+function calcFocusStreak(days){
+  let streak = 0;
+  const d = new Date();
+  for (let i = 0; i < 60; i++) {
+    const cur = new Date(d);
+    cur.setDate(d.getDate() - i);
+    const key = cur.getFullYear() + "-" + String(cur.getMonth()+1).padStart(2,"0") + "-" + String(cur.getDate()).padStart(2,"0");
+    const entry = days[key];
+    const active = entry && Object.values(entry).some(Boolean);
+    if (active) streak++;
+    else if (i > 0) break;
+  }
+  return streak;
+}
+function renderFocus(){
+  const root = document.getElementById("focus-content");
+  if (!root) return;
+  const f = ensureFocusState();
+  const k = todayKey();
+  const todayObj = f.days[k] || {};
+
+  let totalItems = 0, doneItems = 0;
+  FOCUS_PILLARS.forEach(p => p.items.forEach((_, idx) => {
+    totalItems++;
+    if (f.checks[p.id + "_" + idx]) doneItems++;
+  }));
+  const pct = totalItems ? Math.round(doneItems / totalItems * 100) : 0;
+  const streak = calcFocusStreak(f.days);
+
+  document.getElementById("focus-streak").textContent = streak + "d";
+  document.getElementById("focus-sessions").textContent = f.sessions || 0;
+  document.getElementById("focus-pct").textContent = pct + "%";
+
+  const last14 = [];
+  const now = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const c = new Date(now);
+    c.setDate(now.getDate() - i);
+    const dk = c.getFullYear() + "-" + String(c.getMonth()+1).padStart(2,"0") + "-" + String(c.getDate()).padStart(2,"0");
+    const hit = f.days[dk] && Object.values(f.days[dk]).some(Boolean);
+    last14.push(`<div class="streak-cell ${hit ? "hit" : ""}" title="${dk}">${c.getDate()}</div>`);
+  }
+
+  let html = `
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-badge" style="background:var(--green-bg);color:var(--green-text)">Today · ${k}</span>
+        <span class="phase-title">3 Non-Negotiable Daily Blocks</span>
+      </div>
+      ${FOCUS_DAILY_SLOTS.map(s => `
+        <div class="task-row">
+          <input type="checkbox" ${todayObj[s.id] ? "checked" : ""} onchange="toggleDailySlot('${s.id}')">
+          <span class="task-label ${todayObj[s.id] ? "done" : ""}">${esc(s.label)}</span>
+        </div>
+      `).join("")}
+      <div class="section-label" style="margin-top:10px">14-Day Consistency</div>
+      <div class="streak-grid">${last14.join("")}</div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-badge" style="background:var(--amber-bg);color:var(--amber-text)">Anti-Procrastination</span>
+        <span class="phase-title">10-Minute Rule &amp; Daily Knowledge Log</span>
+      </div>
+      <div class="framework-box" style="margin-top:0;margin-bottom:.75rem">
+        <strong>When you don't feel like studying:</strong> Start the 25m timer and commit to just 10 minutes. Close AI chat/autocomplete. If stuck on a problem for &gt;25m, read the core pattern, close it, and re-code it from blank memory.
+      </div>
+      <div class="focus-note-row">
+        <input id="focus-note-input" placeholder="1-line proof: What did I understand or build deeply today?" onkeydown="if(event.key==='Enter')addFocusNote()">
+        <button class="btn-primary" style="padding:8px 14px;font-size:12px" onclick="addFocusNote()">Log</button>
+      </div>
+      <div style="margin-top:.6rem">
+        ${(f.notes || []).slice(0, 8).map(n => `<div class="focus-note-item"><span class="focus-note-date">${esc(n.date)}</span>${esc(n.text)}</div>`).join("") || '<div class="focus-note-item">No logs yet. Write 1 line after your first focus block.</div>'}
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-badge" style="background:var(--blue-bg);color:var(--blue-text)">Levels.fyi 2026 Data</span>
+        <span class="phase-title">Target Roles, Pay &amp; Visa Bars (USD / Local)</span>
+      </div>
+      <table class="bench-table">
+        <thead><tr><th>Hub</th><th>Median SWE TC</th><th>Company Level Examples</th><th>2026 Visa Bar</th></tr></thead>
+        <tbody>
+          ${FOCUS_BENCHMARKS.map(b => `<tr><td><strong>${b.market}</strong></td><td>${b.median}</td><td>${b.levels}</td><td>${b.visa}</td></tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="job-meta" style="margin-top:8px">Source: Levels.fyi (12-month SWE percentiles &amp; company levels) + 2026 UK/NL/DE immigration thresholds. Halal-only filter: target product &amp; engineering-led tech firms only.</div>
+    </div>
+  `;
+
+  FOCUS_PILLARS.forEach(p => {
+    const [bgVar, txVar] = p.badge.split(",");
+    let done = 0;
+    p.items.forEach((_, idx) => { if (f.checks[p.id + "_" + idx]) done++; });
+    const pPct = Math.round(done / p.items.length * 100);
+    html += `
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge" style="background:var(${bgVar});color:var(${txVar})">${done}/${p.items.length}</span>
+          <span class="phase-title">${esc(p.title)}</span>
+          <span class="phase-date">${pPct}%</span>
+        </div>
+        <div class="pbar-bg"><div class="pbar-fill" style="width:${pPct}%;background:var(--teal)"></div></div>
+        ${p.items.map((item, idx) => {
+          const cid = p.id + "_" + idx;
+          const chk = !!f.checks[cid];
+          return `<div class="task-row"><input type="checkbox" ${chk ? "checked" : ""} onchange="toggleFocusCheck('${cid}')"><span class="task-label ${chk ? "done" : ""}">${esc(item)}</span></div>`;
+        }).join("")}
+      </div>
+    `;
+  });
+
+  root.innerHTML = html;
 }
 
 // ══════════════════════════════════════════════
@@ -1728,6 +2069,7 @@ async function init(){
   renderCompanies();
   renderJobs();
   renderCoding();
+  renderFocus();
   refreshLiveJobs(false);
 }
 
