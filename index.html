@@ -871,6 +871,23 @@ const COMPANIES = {
     {id:347,n:"Top K Frequent Elements",d:"medium",s:"top-k-frequent-elements"},{id:787,n:"Cheapest Flights Within K Stops",d:"medium",s:"cheapest-flights-within-k-stops"},
     {id:87,n:"Scramble String",d:"hard",s:"scramble-string"},
     {id:1125,n:"Smallest Sufficient Team",d:"hard",s:"smallest-sufficient-team"}
+  ],
+  "GitHub":[
+    {id:1,n:"Two Sum",d:"easy",s:"two-sum"},{id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses"},
+    {id:3,n:"Longest Substring Without Repeating Characters",d:"medium",s:"longest-substring-without-repeating-characters"},
+    {id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams"},{id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals"},
+    {id:98,n:"Validate Binary Search Tree",d:"medium",s:"validate-binary-search-tree"},
+    {id:102,n:"Binary Tree Level Order Traversal",d:"medium",s:"binary-tree-level-order-traversal"},
+    {id:133,n:"Clone Graph",d:"medium",s:"clone-graph"},{id:139,n:"Word Break",d:"medium",s:"word-break"},
+    {id:146,n:"LRU Cache",d:"medium",s:"lru-cache"},{id:200,n:"Number of Islands",d:"medium",s:"number-of-islands"},
+    {id:207,n:"Course Schedule",d:"medium",s:"course-schedule"},{id:208,n:"Implement Trie (Prefix Tree)",d:"medium",s:"implement-trie-prefix-tree"},
+    {id:211,n:"Design Add and Search Words Data Structure",d:"medium",s:"design-add-and-search-words-data-structure"},
+    {id:215,n:"Kth Largest Element in an Array",d:"medium",s:"kth-largest-element-in-an-array"},
+    {id:297,n:"Serialize and Deserialize Binary Tree",d:"hard",s:"serialize-and-deserialize-binary-tree"},
+    {id:347,n:"Top K Frequent Elements",d:"medium",s:"top-k-frequent-elements"},
+    {id:359,n:"Logger Rate Limiter",d:"easy",s:"logger-rate-limiter"},
+    {id:362,n:"Design Hit Counter",d:"medium",s:"design-hit-counter"},
+    {id:981,n:"Time Based Key-Value Store",d:"medium",s:"time-based-key-value-store"}
   ]
 };
 
@@ -1792,10 +1809,97 @@ function resetSection(sec){
 // DEEP FOCUS & DIRECT RELOCATION
 // ══════════════════════════════════════════════
 const FOCUS_DAILY_SLOTS = [
-  { id:"dsa", label:"DSA Block (60–90m): 1–2 timed problems coded from scratch with ZERO AI autocomplete" },
-  { id:"deep", label:"Deep Internals Block (45–60m): .NET / SQL EXPLAIN / Redis / Kafka / System Design" },
-  { id:"out", label:"Tangible Output: Write tests/ADR, solve a real bug, or send 5 targeted UK/NL/DE applications" },
+  { id:"dsa", label:"DSA Block (60–90m): Complete today's assigned LeetCode problem(s) timed, ZERO AI autocomplete" },
+  { id:"deep", label:"Deep Internals Block (45–60m): Complete today's backend/SQL/system-design deep dive & prove without notes" },
+  { id:"out", label:"Tangible Output: Complete today's GitHub commit / test / ADR or EU/UK application action" },
   { id:"noai", label:"AI-Free Commitment: I debugged and reasoned through errors myself today" }
+];
+
+const STUDY_PATH = [
+  { day:1, theme:"Arrays/Hashing + .NET Async Internals",
+    lc:[{id:1,n:"Two Sum",d:"easy",s:"two-sum",tags:"Google · GitHub · Amazon · Microsoft"},{id:49,n:"Group Anagrams",d:"medium",s:"group-anagrams",tags:"GitHub · Amazon · Expedia"}],
+    deep:"C# async/await state machine, Task vs ValueTask, and why .Result/.Wait() deadlocks.",
+    output:"Write a 5-line note explaining async state machine + push 1 clean GitHub commit without AI." },
+  { day:2, theme:"Sliding Window + PostgreSQL B-Tree Indexing",
+    lc:[{id:3,n:"Longest Substring Without Repeating Characters",d:"medium",s:"longest-substring-without-repeating-characters",tags:"GitHub · Amazon · Microsoft"}],
+    deep:"PostgreSQL B-tree index internals & why composite index column order (A, B) vs (B, A) matters.",
+    output:"Run EXPLAIN ANALYZE on a 100k-row query locally and log the seq-scan → index-scan speedup." },
+  { day:3, theme:"Stack & Validation + DI Lifetimes",
+    lc:[{id:20,n:"Valid Parentheses",d:"easy",s:"valid-parentheses",tags:"GitHub · Amazon · Meta · Microsoft"}],
+    deep:"ASP.NET Core DI lifetimes (Transient, Scoped, Singleton) & captive dependency memory leaks.",
+    output:"Audit your .NET code/notes for Scoped-inside-Singleton bugs and document 1 fix." },
+  { day:4, theme:"Rate Limiting & Design + Redis Cache-Aside",
+    lc:[{id:359,n:"Logger Rate Limiter",d:"easy",s:"logger-rate-limiter",tags:"Google · GitHub"},{id:362,n:"Design Hit Counter",d:"medium",s:"design-hit-counter",tags:"GitHub · Amazon"}],
+    deep:"Redis cache-aside pattern, TTL jitter, and preventing cache stampede/dogpile.",
+    output:"Sketch a sliding-window rate limiter using Redis ZSET/INCR and commit notes to GitHub." },
+  { day:5, theme:"Intervals + EF Core N+1 & AsNoTracking",
+    lc:[{id:56,n:"Merge Intervals",d:"medium",s:"merge-intervals",tags:"GitHub · Expedia · Amazon · Meta"}],
+    deep:"EF Core change tracking vs AsNoTracking, split queries, and catching N+1 queries in logs.",
+    output:"Refactor 1 query pattern to eliminate N+1 and compare SQL profiler output." },
+  { day:6, theme:"Design Data Structures + LRU & Caching",
+    lc:[{id:146,n:"LRU Cache",d:"medium",s:"lru-cache",tags:"Google · GitHub · Amazon · Microsoft · Expedia"}],
+    deep:"Implement LRU Cache (HashMap + Doubly Linked List) from scratch in C# & explain eviction policies.",
+    output:"Push your clean, unit-tested LRU Cache (xUnit) to GitHub." },
+  { day:7, theme:"Weekly Review + UK/NL/DE Applications",
+    lc:[{id:347,n:"Top K Frequent Elements",d:"medium",s:"top-k-frequent-elements",tags:"GitHub · Expedia · Amazon"}],
+    deep:"Review Days 1–6: re-explain 3 concepts out loud without looking at notes.",
+    output:"Apply to 5 verified UK/NL/DE sponsor roles (Microsoft, Booking, Expedia, Skyscanner, Zalando)." },
+  { day:8, theme:"Graphs (BFS/DFS) + SQL Isolation Levels",
+    lc:[{id:200,n:"Number of Islands",d:"medium",s:"number-of-islands",tags:"Google · GitHub · Amazon · Expedia"}],
+    deep:"ACID isolation levels (Read Committed, Repeatable Read, Serializable) & dirty/phantom reads.",
+    output:"Write 2 concurrent SQL transactions to reproduce & fix a lost-update bug." },
+  { day:9, theme:"Topological Sort + Transactional Outbox",
+    lc:[{id:207,n:"Course Schedule",d:"medium",s:"course-schedule",tags:"GitHub · Amazon · Expedia"}],
+    deep:"Transactional Outbox pattern with RabbitMQ/Kafka: guaranteeing at-least-once event delivery.",
+    output:"Draw the Outbox + Worker flow and write an ADR explaining why dual-writes fail." },
+  { day:10, theme:"Trees & BST + Optimistic Concurrency",
+    lc:[{id:98,n:"Validate Binary Search Tree",d:"medium",s:"validate-binary-search-tree",tags:"GitHub · Expedia · Amazon"}],
+    deep:"Optimistic concurrency (RowVersion/ETag) vs pessimistic locking (SELECT FOR UPDATE) & deadlocks.",
+    output:"Implement optimistic concurrency check in an API endpoint + xUnit test." },
+  { day:11, theme:"Trie & Prefix Search + TypeScript Strictness",
+    lc:[{id:208,n:"Implement Trie (Prefix Tree)",d:"medium",s:"implement-trie-prefix-tree",tags:"Google · GitHub · Amazon"}],
+    deep:"Strict TypeScript: generics, discriminated unions, never/unknown, eliminating 'any'.",
+    output:"Convert 1 JS module or component to strict TypeScript (`strict: true`) on GitHub." },
+  { day:12, theme:"Time-Series KV + Idempotency Keys",
+    lc:[{id:981,n:"Time Based Key-Value Store",d:"medium",s:"time-based-key-value-store",tags:"GitHub · Google"}],
+    deep:"Idempotent REST/webhook APIs: Idempotency-Key header + unique DB constraint + replay safety.",
+    output:"Design & test an idempotent POST endpoint that safely handles duplicate retries." },
+  { day:13, theme:"DP & Word Break + Integration Testing",
+    lc:[{id:139,n:"Word Break",d:"medium",s:"word-break",tags:"GitHub · Amazon · Meta"}],
+    deep:"WebApplicationFactory + Testcontainers: real PostgreSQL/SQL Server integration tests in .NET.",
+    output:"Add 2 real DB integration tests (no mocking the DB) and push to GitHub." },
+  { day:14, theme:"Weekly Review + Mock Interview",
+    lc:[{id:102,n:"Binary Tree Level Order Traversal",d:"medium",s:"binary-tree-level-order-traversal",tags:"GitHub · Expedia · Amazon"}],
+    deep:"System Design 45-min dry run: Design a Rate Limiter or Notification Service end-to-end.",
+    output:"Apply to 5 UK/NL/DE roles + do 1 timed mock interview (Pramp / peer)." },
+  { day:15, theme:"Sliding Window Hard + Dead-Letter Queues",
+    lc:[{id:76,n:"Minimum Window Substring",d:"hard",s:"minimum-window-substring",tags:"Google · Expedia · Meta"}],
+    deep:"Dead-Letter Queues (DLQ), poison messages, and exponential backoff + jitter.",
+    output:"Document your retry + DLQ strategy in your flagship project repo." },
+  { day:16, theme:"Tree Serialization + Cursor Pagination",
+    lc:[{id:297,n:"Serialize and Deserialize Binary Tree",d:"hard",s:"serialize-and-deserialize-binary-tree",tags:"Google · GitHub · Amazon"}],
+    deep:"Keyset/cursor pagination vs OFFSET/LIMIT performance on deep pages.",
+    output:"Benchmark OFFSET vs cursor pagination on 500k rows and log results." },
+  { day:17, theme:"Graph Cloning + OpenTelemetry & Logging",
+    lc:[{id:133,n:"Clone Graph",d:"medium",s:"clone-graph",tags:"GitHub · Meta · Amazon"}],
+    deep:"Structured logging (Serilog/OpenTelemetry), correlation IDs, and /healthz vs /readyz.",
+    output:"Add correlation ID middleware + RFC 7807 ProblemDetails error handler to an API." },
+  { day:18, theme:"Heaps & Streams + Secondary EU Backend",
+    lc:[{id:295,n:"Find Median from Data Stream",d:"hard",s:"find-median-from-data-stream",tags:"Google · Expedia · Amazon"}],
+    deep:"Secondary backend parity (Node.js/TypeScript OR Java Spring Boot): build a clean REST endpoint + test.",
+    output:"Push a minimal Node/TS or Java service with 1 integration test to GitHub." },
+  { day:19, theme:"Shortest Path / Word Ladder + React Testing",
+    lc:[{id:127,n:"Word Ladder",d:"hard",s:"word-ladder",tags:"Google · Expedia · Amazon"}],
+    deep:"React reconciliation, memoization traps, and Vitest + React Testing Library.",
+    output:"Write 3 meaningful React component tests (user flows, not implementation details)." },
+  { day:20, theme:"Grid BFS + STAR Stories (Disprz)",
+    lc:[{id:1197,n:"Minimum Knight Moves",d:"medium",s:"minimum-knight-moves",tags:"Google · Expedia"}],
+    deep:"Polish 2-minute STAR stories for Darwinbox, eCornell SFTP, Honda workflows, and BAGIC API.",
+    output:"Record or write out your 4 STAR stories with metrics & trade-offs." },
+  { day:21, theme:"Cycle Capstone + Full Relocation Push",
+    lc:[{id:269,n:"Alien Dictionary",d:"hard",s:"alien-dictionary",tags:"Google · Amazon · Meta"}],
+    deep:"System Design 45-min dry run: Event-Driven Booking / Job Queue (DB + Redis + Queue).",
+    output:"Apply to 5–10 UK/NL/DE roles + review your 21-day streak & weak spots for Cycle 2." }
 ];
 
 const FOCUS_BENCHMARKS = [
@@ -1857,7 +1961,31 @@ function ensureFocusState(){
   if (!state.focus.days) state.focus.days = {};
   if (!Array.isArray(state.focus.notes)) state.focus.notes = [];
   if (typeof state.focus.sessions !== "number") state.focus.sessions = 0;
+  if (typeof state.focus.currentDay !== "number" || state.focus.currentDay < 1 || state.focus.currentDay > STUDY_PATH.length) state.focus.currentDay = 1;
   return state.focus;
+}
+function setStudyDay(dayNum){
+  const f = ensureFocusState();
+  f.currentDay = ((dayNum - 1 + STUDY_PATH.length) % STUDY_PATH.length) + 1;
+  scheduleSave();
+  renderFocus();
+}
+function completeAndAdvanceDay(){
+  const f = ensureFocusState();
+  const k = todayKey();
+  f.days[k] = f.days[k] || {};
+  f.days[k].dsa = true;
+  f.days[k].deep = true;
+  f.days[k].out = true;
+  f.currentDay = (f.currentDay % STUDY_PATH.length) + 1;
+  scheduleSave();
+  renderFocus();
+}
+function toggleFocusLC(slug){
+  state.lc[slug] = !state.lc[slug];
+  scheduleSave();
+  renderLC();
+  renderFocus();
 }
 function todayKey(){
   const d = new Date();
@@ -1980,11 +2108,46 @@ function renderFocus(){
     last14.push(`<div class="streak-cell ${hit ? "hit" : ""}" title="${dk}">${c.getDate()}</div>`);
   }
 
+  const curDayObj = STUDY_PATH[f.currentDay - 1] || STUDY_PATH[0];
+  const nextDayObj = STUDY_PATH[f.currentDay % STUDY_PATH.length];
+
   let html = `
     <div class="phase-card">
       <div class="phase-header">
+        <span class="phase-badge" style="background:var(--purple-bg);color:var(--purple-text)">Day ${curDayObj.day} of ${STUDY_PATH.length}</span>
+        <span class="phase-title">${esc(curDayObj.theme)}</span>
+        <div style="display:flex;gap:4px">
+          <button class="timer-btn" onclick="setStudyDay(${curDayObj.day - 1})">← Prev</button>
+          <button class="timer-btn" onclick="setStudyDay(${curDayObj.day + 1})">Next →</button>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:0">1. Today's LeetCode Path (Synced with LeetCode Tab · Google &amp; GitHub)</div>
+      <div class="lc-list" style="margin-bottom:.75rem">
+        ${curDayObj.lc.map(p => {
+          const solved = !!state.lc[p.s];
+          const cls = p.d==="easy"?"e-b":p.d==="medium"?"m-b":"h-b";
+          return `<div class="lc-row ${solved?"solved":""}">
+            <input type="checkbox" class="lc-check" ${solved?"checked":""} onchange="toggleFocusLC('${p.s}')">
+            <span class="lc-num">#${p.id}</span>
+            <a class="lc-name ${solved?"done":""}" href="https://leetcode.com/problems/${p.s}/" target="_blank" rel="noopener">${esc(p.n)} <span style="font-size:11px;color:var(--text3)">(${esc(p.tags)})</span></a>
+            <span class="diff-badge ${cls}">${p.d}</span>
+          </div>`;
+        }).join("")}
+      </div>
+      <div class="framework-box" style="margin-top:0;margin-bottom:.65rem">
+        <strong>2. Today's Deep Internals:</strong> ${esc(curDayObj.deep)}<br>
+        <strong>3. Today's Tangible Output:</strong> ${esc(curDayObj.output)}
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:.5rem">
+        <span style="font-size:12px;color:var(--text3)"><strong>Tomorrow (Day ${nextDayObj.day}):</strong> ${esc(nextDayObj.theme)}</span>
+        <button class="btn-primary" style="padding:7px 12px;font-size:12px" onclick="completeAndAdvanceDay()">Complete Day &amp; Advance →</button>
+      </div>
+    </div>
+
+    <div class="phase-card">
+      <div class="phase-header">
         <span class="phase-badge" style="background:var(--green-bg);color:var(--green-text)">Today · ${k}</span>
-        <span class="phase-title">3 Non-Negotiable Daily Blocks</span>
+        <span class="phase-title">Daily Non-Negotiable Checklist</span>
       </div>
       ${FOCUS_DAILY_SLOTS.map(s => `
         <div class="task-row">
