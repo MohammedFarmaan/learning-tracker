@@ -6,7 +6,8 @@
     "two-sum": true,
     "merge-two-sorted-lists": true,
     "most-common-word": true,
-    "valid-parentheses": true
+    "valid-parentheses": true,
+    "group-anagrams": true
   },
   "sd": {},
   "amina": {},
