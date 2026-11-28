@@ -19,10 +19,15 @@
     "days": {
       "2026-11-27": {
         "noai": false
+      },
+      "2026-11-28": {
+        "dsa": true,
+        "deep": true,
+        "out": true
       }
     },
     "notes": [],
     "sessions": 0,
-    "currentDay": 1
+    "currentDay": 2
   }
 }
